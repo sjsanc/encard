@@ -7,44 +7,74 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-func (m *Model) View() string {
-	out := strings.Builder{}
+var MIN_WIDTH = 60
 
-	if m.IsCompleted {
-		block := lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, "You're done!")
-		return block
+func getWidths(max int) (int, int) {
+	centerWidth := max / 4
+	if centerWidth < MIN_WIDTH {
+		centerWidth = MIN_WIDTH
+	}
+	remainingWidth := max - centerWidth
+	sideWidth := remainingWidth / 2
+	return sideWidth, centerWidth
+}
+
+func (m *Model) buildLeftCol(w int, h int) string {
+	card := m.GetCurrentCard()
+	body := strings.Builder{}
+	block := lipgloss.NewStyle().Width(w).Height(h).Padding(0, 1).Align(lipgloss.Right, lipgloss.Bottom)
+
+	body.WriteString(card.Deck + "\n")
+
+	count := fmt.Sprintf("%d of %d", m.CurrentIndex+1, len(m.Cards))
+	body.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#FF8F40")).Render(count + "\n"))
+
+	body.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#30384A")).Render("press 'space' to flip"))
+
+	return block.Render(body.String())
+}
+
+func (m *Model) buildCenterCol(w int, h int) string {
+	card := m.GetCurrentCard()
+	body := strings.Builder{}
+	block := lipgloss.NewStyle().Width(w).Height(h).Padding(0, 1).Align(lipgloss.Left, lipgloss.Bottom)
+
+	// TODO: Add reverse history
+
+	body.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#7FD962")).Width(w).Bold(true).Render(card.Front))
+
+	if m.IsFlipped {
+		body.WriteString(card.Back)
+	} else {
+		body.WriteString("\n")
 	}
 
+	return block.Render(body.String())
+}
+
+func (m *Model) buildRightCol(w int, h int) string {
+	block := lipgloss.NewStyle().Width(w).Height(h).Padding(0, 1).Align(lipgloss.Left, lipgloss.Bottom)
+	return block.Render("Press 'q' to quit")
+}
+
+func (m *Model) View() string {
 	currentCard := m.GetCurrentCard()
 	if currentCard == nil {
 		return ""
 	}
 
-	deckName := lipgloss.NewStyle().Width(m.Width / 4).Align(lipgloss.Left)
-	out.WriteString(deckName.Render(currentCard.Deck))
+	sideWidth, centerWidth := getWidths(m.Width)
 
-	out.WriteString("\n")
+	left := m.buildLeftCol(sideWidth, m.Height/2)
+	center := m.buildCenterCol(centerWidth, m.Height/2)
+	right := m.buildRightCol(sideWidth, m.Height/2)
 
-	countStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#FF8F40")).Width(m.Width / 4).Align(lipgloss.Left)
-	count := fmt.Sprintf("%d/%d", m.CurrentIndex+1, len(m.Cards))
-	out.WriteString(countStyle.Render(count))
-
-	out.WriteString("\n\n")
-
-	frontStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("#7FD962")).Width(m.Width / 4).Bold(true).Align(lipgloss.Left)
-	out.WriteString(frontStyle.Render(currentCard.Front))
-
-	out.WriteString("\n")
-
-	back := lipgloss.NewStyle().Align(lipgloss.Left).Width(m.Width / 4)
-
-	if m.IsFlipped {
-		out.WriteString(back.Render(currentCard.Back))
-	} else {
-		out.WriteString(" ")
-	}
-
-	block := lipgloss.Place(m.Width, m.Height, lipgloss.Center, lipgloss.Center, out.String())
+	block := lipgloss.JoinHorizontal(
+		lipgloss.Bottom,
+		left,
+		center,
+		right,
+	)
 
 	return block
 }

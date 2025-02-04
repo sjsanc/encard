@@ -23,7 +23,7 @@ func Run(args []string) error {
 }
 
 func rootAction(context.Context, *cli.Command) error {
-	path := "decks"
+	path := os.Args[len(os.Args)-1]
 	if len(path) == 0 {
 		return fmt.Errorf("no path provided")
 	}
