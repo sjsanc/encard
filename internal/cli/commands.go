@@ -22,14 +22,23 @@ func Run(args []string) error {
 	return cmd.Run(context.Background(), args)
 }
 
-func rootAction(context.Context, *cli.Command) error {
-	path := os.Args[len(os.Args)-1]
+var DEFAULT_ROOT_DECK = ".encard"
+
+// TODO: match deck names directly with `encard <deckname>`
+// Currently matches <path/to/file> | <path/to/dir> | HomeDir
+
+func rootAction(ctx context.Context, cmd *cli.Command) error {
+	path := cmd.Args().First()
+
 	if len(path) == 0 {
-		return fmt.Errorf("no path provided")
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return fmt.Errorf("error getting home directory: %w", err)
+		}
+		path = homeDir + "/" + DEFAULT_ROOT_DECK
 	}
 
 	var cards []*encard.Card
-	var err error
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -38,26 +47,23 @@ func rootAction(context.Context, *cli.Command) error {
 
 	if info.IsDir() {
 		cards, err = encard.ParseCardsFromPath(path)
-	} else if strings.HasSuffix(path, ".md") {
+		if err != nil {
+			return fmt.Errorf("error parsing cards: %w", err)
+		}
+	}
+
+	if strings.HasSuffix(path, ".md") {
 		data, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("error reading file: %w", err)
 		}
 		cards = encard.ParseCards(string(data), path)
-	} else {
-		return fmt.Errorf("invalid path")
-	}
-
-	if err != nil {
-		return err
 	}
 
 	model := &encard.Model{
 		Cards:        cards,
 		CurrentIndex: 0,
 	}
-
-	fmt.Println("Loaded", len(cards), "cards.")
 
 	program := tea.NewProgram(model, tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {

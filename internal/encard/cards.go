@@ -35,41 +35,29 @@ func ParseCards(data, deckName string) []*Card {
 
 func ParseCardsFromPath(path string) ([]*Card, error) {
 	var allCards []*Card
-	err := parseCardsRecursive(path, path, &allCards)
-	if err != nil {
-		return nil, err
-	}
-	return allCards, nil
-}
+	err := filepath.Walk(path, func(entryPath string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-func parseCardsRecursive(rootPath, path string, cards *[]*Card) error {
-	entries, err := os.ReadDir(path)
-	if err != nil {
-		return err
-	}
+		if info.IsDir() {
+			return nil
+		}
 
-	for _, entry := range entries {
-		entryPath := path + "/" + entry.Name()
-
-		if entry.IsDir() {
-			if err := parseCardsRecursive(rootPath, entryPath, cards); err != nil {
-				return err
-			}
-		} else if strings.HasSuffix(entry.Name(), ".md") {
-			relativePath, err := filepath.Rel(rootPath, entryPath) // Trim the root dir path
-			if err != nil {
-				return err
-			}
-
-			deckName := strings.TrimSuffix(relativePath, ".md")
+		if strings.HasSuffix(info.Name(), ".md") {
+			deckName := strings.TrimSuffix(filepath.ToSlash(entryPath), ".md")
 			data, err := os.ReadFile(entryPath)
 			if err != nil {
 				return err
 			}
 
-			*cards = append(*cards, ParseCards(string(data), deckName)...)
+			allCards = append(allCards, ParseCards(string(data), deckName)...)
 		}
-	}
+		return nil
+	})
 
-	return nil
+	if err != nil {
+		return nil, err
+	}
+	return allCards, nil
 }
