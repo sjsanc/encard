@@ -27,6 +27,8 @@ var DEFAULT_ROOT_DECK = ".encard"
 // TODO: match deck names directly with `encard <deckname>`
 // Currently matches <path/to/file> | <path/to/dir> | HomeDir
 
+// TODO: align the card answer beneath the card question
+
 func rootAction(ctx context.Context, cmd *cli.Command) error {
 	path := cmd.Args().First()
 
