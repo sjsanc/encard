@@ -14,6 +14,7 @@ type Card struct {
 	Back  string
 }
 
+// Converts raw text into a slice of Cards
 func ParseCards(data, deckName string) []*Card {
 	raw := strings.Split(data, "---")
 	cards := make([]*Card, 0)
@@ -35,6 +36,7 @@ func ParseCards(data, deckName string) []*Card {
 	return cards
 }
 
+// Parses all cards from a given path
 func ParseCardsFromPath(path string) ([]*Card, error) {
 	var allCards []*Card
 	err := filepath.Walk(path, func(entryPath string, info os.FileInfo, err error) error {
@@ -64,6 +66,7 @@ func ParseCardsFromPath(path string) ([]*Card, error) {
 	return allCards, nil
 }
 
+// Shuffles a slice of Cards
 func Shuffle(cards []*Card) []*Card {
 	shuffled := make([]*Card, len(cards))
 	perm := rand.Perm(len(cards))
