@@ -16,7 +16,14 @@ func Run(args []string) error {
 		Name:      "encard",
 		Usage:     "start the CLI",
 		ArgsUsage: "[path/to/deck]",
-		Action:    rootAction,
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:    "shuffle",
+				Aliases: []string{"s"},
+				Usage:   "Shuffle the cards before starting",
+			},
+		},
+		Action: rootAction,
 	}
 
 	return cmd.Run(context.Background(), args)
@@ -26,8 +33,6 @@ var DEFAULT_ROOT_DECK = ".encard"
 
 // TODO: match deck names directly with `encard <deckname>`
 // Currently matches <path/to/file> | <path/to/dir> | HomeDir
-
-// TODO: align the card answer beneath the card question
 
 func rootAction(ctx context.Context, cmd *cli.Command) error {
 	path := cmd.Args().First()
@@ -63,8 +68,12 @@ func rootAction(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	model := &encard.Model{
-		Cards:        cards,
-		CurrentIndex: 0,
+		Cards: cards,
+	}
+
+	if cmd.Bool("shuffle") {
+		model.IsShuffled = true
+		model.Cards = encard.Shuffle(model.Cards)
 	}
 
 	program := tea.NewProgram(model, tea.WithAltScreen())

@@ -1,6 +1,8 @@
 package encard
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -60,4 +62,14 @@ func ParseCardsFromPath(path string) ([]*Card, error) {
 		return nil, err
 	}
 	return allCards, nil
+}
+
+func Shuffle(cards []*Card) []*Card {
+	shuffled := make([]*Card, len(cards))
+	perm := rand.Perm(len(cards))
+	for i, v := range perm {
+		shuffled[v] = cards[i]
+	}
+	fmt.Println("Shuffled")
+	return shuffled
 }

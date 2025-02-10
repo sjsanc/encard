@@ -11,6 +11,7 @@ type Model struct {
 	CurrentIndex int
 	IsFlipped    bool
 	IsCompleted  bool
+	IsShuffled   bool
 }
 
 func (m *Model) Init() tea.Cmd {
@@ -22,9 +23,10 @@ func (m *Model) GetCurrentCard() *Card {
 }
 
 func (m *Model) NextCard() {
-	m.IsFlipped = false
-	m.CurrentIndex++
-	if m.CurrentIndex >= len(m.Cards) {
+	if m.CurrentIndex >= len(m.Cards)-1 {
 		m.IsCompleted = true
+	} else {
+		m.IsFlipped = false
+		m.CurrentIndex++
 	}
 }
