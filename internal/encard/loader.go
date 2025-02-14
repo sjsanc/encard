@@ -41,20 +41,20 @@ func ResolveRootPath() (string, error) {
 }
 
 // `ParseMarkdownFile` parses a markdown file into a slice of cards.
-func ParseMarkdownFile(path string) ([]*Card, error) {
+func ParseMarkdownFile(path string) ([]Card, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing Markdown file: %w", err)
+		return nil, fmt.Errorf("error reading file: %w", err)
 	}
 
 	chunks := strings.Split(string(data), "---")
 
 	// strings.Split always returns at least 1 element
 	if chunks[0] == "" {
-		return nil, fmt.Errorf("no cards found in Markdown file: %s", path)
+		return nil, fmt.Errorf("file cannot be empty: %s", path)
 	}
 
-	cards := make([]*Card, 0)
+	cards := make([]Card, 0)
 
 	for i, chunk := range chunks {
 		lines := strings.Split(strings.TrimSpace(chunk), "\n")
@@ -74,20 +74,41 @@ func ParseMarkdownFile(path string) ([]*Card, error) {
 		}
 		front = strings.TrimPrefix(front, "# ")
 
-		back := lines[1]
-		cards = append(cards, &Card{
+		back := lines[1:]
+
+		if back[0] == "" {
+			log.Printf("[%d] Parsing error: card back must not be empty\n", i)
+			continue
+		}
+
+		if strings.HasPrefix(back[0], " - ") || strings.HasPrefix(back[0], " * ") {
+			c := &MultipleChoiceCard{
+				Deck:    path,
+				Front:   front,
+				Choices: make([]string, 0),
+			}
+			for _, line := range back {
+				c.Choices = append(c.Choices, line)
+			}
+			cards = append(cards, c)
+			continue
+		}
+
+		c := &BasicCard{
 			Deck:  path,
 			Front: front,
-			Back:  back,
-		})
+			Back:  strings.Join(back, "\n"),
+		}
+
+		cards = append(cards, c)
 	}
 
 	return cards, nil
 }
 
 // `ParseDirectory` parses a directory of files into a slice of cards.
-func ParseDirectory(path string) ([]*Card, error) {
-	var cards []*Card
+func ParseDirectory(path string) ([]Card, error) {
+	var cards []Card
 
 	file, err := os.ReadDir(path)
 	if err != nil {
@@ -111,8 +132,8 @@ func ParseDirectory(path string) ([]*Card, error) {
 }
 
 // `LoadDeckFromPath` loads a deck of cards from a given path.
-func LoadDeckFromPath(path string) ([]*Card, error) {
-	var cards []*Card
+func LoadDeckFromPath(path string) ([]Card, error) {
+	var cards []Card
 
 	ext := filepath.Ext(path)
 

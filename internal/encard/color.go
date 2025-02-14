@@ -5,6 +5,16 @@ import (
 	"strconv"
 )
 
+func clamp(val, min, max int) int {
+	if val < min {
+		return min
+	}
+	if val > max {
+		return max
+	}
+	return val
+}
+
 func darkenHex(hex string, factor float64) string {
 	// Parse the hex string as individual R, G, B components
 	r, _ := strconv.ParseInt(hex[0:2], 16, 0)

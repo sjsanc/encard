@@ -7,7 +7,7 @@ import (
 type Model struct {
 	Width        int
 	Height       int
-	Cards        []*Card
+	Cards        []Card
 	CurrentIndex int
 	IsFlipped    bool
 	IsCompleted  bool
@@ -18,7 +18,7 @@ func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) GetCurrentCard() *Card {
+func (m *Model) GetCurrentCard() Card {
 	return m.Cards[m.CurrentIndex]
 }
 
