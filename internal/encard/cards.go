@@ -4,115 +4,115 @@ import (
 	"fmt"
 	"math/rand"
 	"strings"
+
+	"github.com/sjsanc/encard/internal/styles"
 )
+
+type Flippable struct {
+	flipped bool
+}
+
+func (f *Flippable) Flipped() bool {
+	return f.flipped
+}
+func (f *Flippable) Flip() {
+	f.flipped = !f.flipped
+}
 
 type Card interface {
 	Render() string
+	Deck() string
+	Flipped() bool
+	Flip()
 }
 
-type Flippable struct {
-	IsFlipped bool
-}
-
-func (f *Flippable) Flip() {
-	f.IsFlipped = !f.IsFlipped
-}
-func (f *Flippable) Unflip() {
-	f.IsFlipped = false
-}
+// ================================================================================
+// ### BASIC CARD
+// ================================================================================
 
 type BasicCard struct {
 	Flippable
-	Deck      string
-	Front     string
-	Back      string
-	IsFlipped bool
+	deck  string
+	front string
+	back  string
 }
 
 func (c *BasicCard) Render() string {
 	sb := strings.Builder{}
-	sb.WriteString(c.Front + "\n")
-	if c.IsFlipped {
-		sb.WriteString(c.Back)
+	sb.WriteString(styles.Question.Render(c.front) + "\n")
+	if c.flipped {
+		sb.WriteString(c.back)
 	}
 	return sb.String()
 }
 
+func (c *BasicCard) Deck() string {
+	return c.deck
+}
+
+// ================================================================================
+// ### MULTIPLE CHOICE CARD
+// ================================================================================
+
 type MultipleChoiceCard struct {
 	Flippable
-	Deck      string
-	Front     string
-	Choices   []string
-	Answer    int
-	Selected  int
-	IsFlipped bool
+	deck          string
+	Front         string
+	Choices       []string
+	Answer        int
+	CurrentChoice int
 }
 
 func (c *MultipleChoiceCard) Render() string {
 	sb := strings.Builder{}
-	sb.WriteString(c.Front + "\n")
+	sb.WriteString(styles.Question.Render(c.Front) + "\n")
+
 	for i, choice := range c.Choices {
-		// TODO: if flipped, just set colors
-		if i == c.Selected {
-			sb.WriteString(fmt.Sprintf("* %s\n", choice))
+		prefix := "- "
+		if i == c.CurrentChoice {
+			prefix = "* "
+		}
+
+		if c.Flipped() {
+			switch {
+			case i == c.Answer:
+				sb.WriteString(styles.CorrectChoice.Render(prefix+choice+" (correct!)") + "\n")
+
+			case i == c.CurrentChoice && i != c.Answer:
+				sb.WriteString(styles.IncorrectChoice.Render(prefix+choice+" (incorrect)") + "\n")
+
+			default:
+				sb.WriteString(prefix + choice + "\n")
+			}
 		} else {
-			sb.WriteString(fmt.Sprintf("  %s\n", choice))
+			if i == c.CurrentChoice {
+				sb.WriteString(styles.CurrentChoice.Render(prefix+choice) + "\n")
+			} else {
+				sb.WriteString(prefix + choice + "\n")
+			}
 		}
 	}
+
 	return sb.String()
 }
 
-// Converts raw text into a slice of Cards
-// func ParseCards(data, deckName string) []*Card {
-// 	raw := strings.Split(data, "---")
-// 	cards := make([]*Card, 0)
+func (c *MultipleChoiceCard) Deck() string {
+	return c.deck
+}
 
-// 	for _, r := range raw {
-// 		lines := strings.Split(strings.TrimSpace(r), "\n")
-// 		if len(lines) < 2 {
-// 			continue
-// 		}
-// 		front := strings.TrimPrefix(lines[0], "# ")
-// 		back := lines[1]
-// 		cards = append(cards, &Card{
-// 			Deck:  deckName,
-// 			Front: front,
-// 			Back:  back,
-// 		})
-// 	}
+func (c *MultipleChoiceCard) NextChoice() {
+	if c.Flipped() {
+		return
+	}
+	c.CurrentChoice = (c.CurrentChoice + 1) % len(c.Choices)
+}
 
-// 	return cards
-// }
-
-// Parses all cards from a given path
-// func ParseCardsFromPath(path string) ([]*Card, error) {
-// 	var allCards []*Card
-// 	err := filepath.Walk(path, func(entryPath string, info os.FileInfo, err error) error {
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		if info.IsDir() {
-// 			return nil
-// 		}
-
-// 		if strings.HasSuffix(info.Name(), ".md") {
-// 			deckName := strings.TrimSuffix(filepath.ToSlash(entryPath), ".md")
-// 			data, err := os.ReadFile(entryPath)
-// 			if err != nil {
-// 				return err
-// 			}
-
-// 			allCards = append(allCards, ParseCards(string(data), deckName)...)
-// 		}
-// 		return nil
-// 	})
-
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return allCards, nil
-// }
+func (c *MultipleChoiceCard) PrevChoice() {
+	if c.Flipped() {
+		return
+	}
+	c.CurrentChoice = (c.CurrentChoice - 1 + len(c.Choices)) % len(c.Choices)
+}
 
 // Shuffles a slice of Cards
 func Shuffle(cards []Card) []Card {

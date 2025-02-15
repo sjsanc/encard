@@ -13,10 +13,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case " ":
-			if !m.IsFlipped {
-				m.IsFlipped = true
-			} else {
-				m.NextCard()
+			m.Advance()
+		case "down":
+			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
+				mc.NextChoice()
+			}
+		case "up":
+			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
+				mc.PrevChoice()
 			}
 		}
 	}

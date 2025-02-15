@@ -81,23 +81,38 @@ func ParseMarkdownFile(path string) ([]Card, error) {
 			continue
 		}
 
-		if strings.HasPrefix(back[0], " - ") || strings.HasPrefix(back[0], " * ") {
+		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
+			ext := filepath.Ext(path)
+			deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
+
 			c := &MultipleChoiceCard{
-				Deck:    path,
+				deck:    deckName,
 				Front:   front,
 				Choices: make([]string, 0),
 			}
-			for _, line := range back {
-				c.Choices = append(c.Choices, line)
+
+			choices := make([]string, 0)
+			for i, line := range back {
+				if strings.HasPrefix(line, "-") {
+					choices = append(choices, strings.TrimPrefix(line, "- "))
+				} else if strings.HasPrefix(line, "*") {
+					choices = append(choices, strings.TrimPrefix(line, "* "))
+					c.Answer = i
+				}
 			}
+
+			c.Choices = append(c.Choices, choices...)
 			cards = append(cards, c)
 			continue
 		}
 
+		ext := filepath.Ext(path)
+		deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
+
 		c := &BasicCard{
-			Deck:  path,
-			Front: front,
-			Back:  strings.Join(back, "\n"),
+			deck:  deckName,
+			front: front,
+			back:  strings.Join(back, "\n"),
 		}
 
 		cards = append(cards, c)

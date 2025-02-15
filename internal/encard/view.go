@@ -1,11 +1,53 @@
 package encard
 
+import (
+	"strings"
+
+	"github.com/charmbracelet/lipgloss"
+	lg "github.com/charmbracelet/lipgloss"
+)
+
 func (m *Model) View() string {
-	for _, c := range m.Cards {
-		c.Render()
+	sb := strings.Builder{}
+
+	if m.IsCompleted {
+		sb.WriteString("You've completed the deck!\n")
+		return sb.String()
 	}
 
-	return ""
+	card := m.CurrentCard()
+
+	sb.WriteString(card.Render())
+
+	quarter := m.Width / 4
+	half := m.Width - quarter - quarter
+
+	base := lg.NewStyle().
+		Height(m.Height)
+
+	left := base.
+		Width(quarter).
+		Align(lg.Right, lg.Top).
+		Render(card.Deck())
+
+	mid := base.
+		Width(half).
+		Align(lg.Left, lg.Top).
+		Padding(0, 2).
+		Render(sb.String())
+
+	right := base.
+		Width(quarter).
+		Render("")
+
+	block := lg.JoinHorizontal(
+		lipgloss.Top,
+		left,
+		mid,
+		right,
+	)
+
+	return block
 }
 
 // func (m *Model) buildLeftCol(w int, h int) string {

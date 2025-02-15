@@ -5,28 +5,34 @@ import (
 )
 
 type Model struct {
-	Width        int
-	Height       int
-	Cards        []Card
-	CurrentIndex int
-	IsFlipped    bool
-	IsCompleted  bool
-	IsShuffled   bool
+	Width            int
+	Height           int
+	Cards            []Card
+	CurrentCardIndex int
+	IsCompleted      bool
+	IsShuffled       bool
 }
 
 func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) GetCurrentCard() Card {
-	return m.Cards[m.CurrentIndex]
+func (m *Model) CurrentCard() Card {
+	return m.Cards[m.CurrentCardIndex]
 }
 
-func (m *Model) NextCard() {
-	if m.CurrentIndex >= len(m.Cards)-1 {
-		m.IsCompleted = true
-	} else {
-		m.IsFlipped = false
-		m.CurrentIndex++
+func (m *Model) Advance() {
+	current := m.CurrentCard()
+
+	if !current.Flipped() {
+		current.Flip()
+		return
 	}
+
+	if m.CurrentCardIndex >= len(m.Cards)-1 {
+		m.IsCompleted = true
+		return
+	}
+
+	m.CurrentCardIndex++
 }

@@ -23,5 +23,3 @@ func Run(args []string) error {
 
 	return cmd.Run(context.Background(), args)
 }
-
-var DEFAULT_ROOT_DECK = ".encard"
