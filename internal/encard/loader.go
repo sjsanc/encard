@@ -106,6 +106,31 @@ func ParseMarkdownFile(path string) ([]Card, error) {
 			continue
 		}
 
+		if strings.HasPrefix(back[0], "[*]") || strings.HasPrefix(back[0], "[ ]") {
+			ext := filepath.Ext(path)
+			deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
+
+			c := &MultipleAnswerCard{
+				deck:    deckName,
+				Front:   front,
+				Choices: make([]string, 0),
+			}
+
+			choices := make([]string, 0)
+			for i, line := range back {
+				if strings.HasPrefix(line, "[*]") {
+					choices = append(choices, strings.TrimPrefix(line, "[*] "))
+					c.Answers = append(c.Answers, i)
+				} else if strings.HasPrefix(line, "[ ]") {
+					choices = append(choices, strings.TrimPrefix(line, "[ ] "))
+				}
+			}
+
+			c.Choices = append(c.Choices, choices...)
+			cards = append(cards, c)
+			continue
+		}
+
 		ext := filepath.Ext(path)
 		deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
 

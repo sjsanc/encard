@@ -3,20 +3,21 @@ package encard
 import (
 	"fmt"
 	"math/rand"
+	"slices"
 	"strings"
 
 	"github.com/sjsanc/encard/internal/styles"
 )
 
-type Flippable struct {
-	flipped bool
-}
-
-func (f *Flippable) Flipped() bool {
-	return f.flipped
-}
-func (f *Flippable) Flip() {
-	f.flipped = !f.flipped
+// Shuffles a slice of Cards
+func Shuffle(cards []Card) []Card {
+	shuffled := make([]Card, len(cards))
+	perm := rand.Perm(len(cards))
+	for i, v := range perm {
+		shuffled[v] = cards[i]
+	}
+	fmt.Println("Shuffled")
+	return shuffled
 }
 
 type Card interface {
@@ -31,10 +32,10 @@ type Card interface {
 // ================================================================================
 
 type BasicCard struct {
-	Flippable
-	deck  string
-	front string
-	back  string
+	flipped bool
+	deck    string
+	front   string
+	back    string
 }
 
 func (c *BasicCard) Render() string {
@@ -50,12 +51,20 @@ func (c *BasicCard) Deck() string {
 	return c.deck
 }
 
+func (c *BasicCard) Flipped() bool {
+	return c.flipped
+}
+
+func (c *BasicCard) Flip() {
+	c.flipped = !c.flipped
+}
+
 // ================================================================================
 // ### MULTIPLE CHOICE CARD
 // ================================================================================
 
 type MultipleChoiceCard struct {
-	Flippable
+	flipped       bool
 	deck          string
 	Front         string
 	Choices       []string
@@ -100,6 +109,14 @@ func (c *MultipleChoiceCard) Deck() string {
 	return c.deck
 }
 
+func (c *MultipleChoiceCard) Flipped() bool {
+	return c.flipped
+}
+
+func (c *MultipleChoiceCard) Flip() {
+	c.flipped = !c.flipped
+}
+
 func (c *MultipleChoiceCard) NextChoice() {
 	if c.Flipped() {
 		return
@@ -114,13 +131,94 @@ func (c *MultipleChoiceCard) PrevChoice() {
 	c.CurrentChoice = (c.CurrentChoice - 1 + len(c.Choices)) % len(c.Choices)
 }
 
-// Shuffles a slice of Cards
-func Shuffle(cards []Card) []Card {
-	shuffled := make([]Card, len(cards))
-	perm := rand.Perm(len(cards))
-	for i, v := range perm {
-		shuffled[v] = cards[i]
+// ================================================================================
+// ### MULTIPLE ANSWER CARD
+// ================================================================================
+
+type MultipleAnswerCard struct {
+	flipped       bool
+	deck          string
+	Front         string
+	Choices       []string
+	Answers       []int
+	CurrentChoice int
+	Selected      []int
+}
+
+func (c *MultipleAnswerCard) Render() string {
+	sb := strings.Builder{}
+	sb.WriteString(styles.Question.Render(c.Front) + "\n")
+
+	for i, choice := range c.Choices {
+		if c.Flipped() {
+			// Selected + Correct
+			if slices.Contains(c.Selected, i) && slices.Contains(c.Answers, i) {
+				sb.WriteString(styles.CorrectChoice.Render("[x] "+choice+" (correct!)") + "\n")
+			}
+
+			// Selected + Incorrect
+			if slices.Contains(c.Selected, i) && !slices.Contains(c.Answers, i) {
+				sb.WriteString(styles.IncorrectChoice.Render("[x] "+choice+" (incorrect!)") + "\n")
+			}
+
+			// Not Selected + Correct
+			if !slices.Contains(c.Selected, i) && slices.Contains(c.Answers, i) {
+				sb.WriteString(styles.UnselectedChoice.Render("[ ] "+choice+" (answer)") + "\n")
+			}
+
+			// Not Selected + Incorrect
+			if !slices.Contains(c.Selected, i) && !slices.Contains(c.Answers, i) {
+				sb.WriteString("[ ] " + choice + "\n")
+			}
+
+		} else {
+			prefix := "[ ] "
+			if i == c.CurrentChoice {
+				prefix = "[*] "
+			}
+
+			if slices.Contains(c.Selected, i) {
+				prefix = "[x] "
+			}
+
+			sb.WriteString(prefix + choice + "\n")
+		}
 	}
-	fmt.Println("Shuffled")
-	return shuffled
+
+	return sb.String()
+}
+
+func (c *MultipleAnswerCard) Deck() string {
+	return c.deck
+}
+
+func (c *MultipleAnswerCard) Flipped() bool {
+	return c.flipped
+}
+
+func (c *MultipleAnswerCard) Flip() {
+	c.flipped = !c.flipped
+}
+
+func (c *MultipleAnswerCard) ToggleChoice() {
+	if slices.Contains(c.Selected, c.CurrentChoice) {
+		i := slices.Index(c.Selected, c.CurrentChoice)
+		c.Selected = append(c.Selected[:i], c.Selected[i+1:]...)
+	} else {
+		c.Selected = append(c.Selected, c.CurrentChoice)
+	}
+}
+
+func (c *MultipleAnswerCard) NextChoice() {
+	if c.Flipped() {
+		return
+	}
+	c.CurrentChoice = (c.CurrentChoice + 1) % len(c.Choices)
+}
+
+func (c *MultipleAnswerCard) PrevChoice() {
+	if c.Flipped() {
+		return
+	}
+	c.CurrentChoice = (c.CurrentChoice - 1 + len(c.Choices)) % len(c.Choices)
 }

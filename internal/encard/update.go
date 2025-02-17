@@ -12,14 +12,24 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch key {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case " ":
+		case "enter":
 			m.Advance()
+		case " ":
+			if ma, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
+				ma.ToggleChoice()
+			}
 		case "down":
 			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
 				mc.NextChoice()
 			}
+			if mc, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
+				mc.NextChoice()
+			}
 		case "up":
 			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
+				mc.PrevChoice()
+			}
+			if mc, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
 				mc.PrevChoice()
 			}
 		}
