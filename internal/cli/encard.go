@@ -6,20 +6,10 @@ import (
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/sjsanc/encard/internal/cards"
 	"github.com/sjsanc/encard/internal/encard"
 	"github.com/urfave/cli/v3"
 )
-
-// Shuffles a slice of Cards
-// func Shuffle(cards []cards.Card) []cards.Card {
-// 	shuffled := make([]cards.Card, len(cards))
-// 	perm := rand.Perm(len(cards))
-// 	for i, v := range perm {
-// 		shuffled[v] = cards[i]
-// 	}
-// 	fmt.Println("Shuffled")
-// 	return shuffled
-// }
 
 func encardAction(ctx context.Context, cmd *cli.Command) error {
 	args := cmd.Args().Slice()
@@ -29,7 +19,7 @@ func encardAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("unable to resolve a default Card directory: %w", err)
 	}
 
-	var cards []encard.Card
+	var cards []cards.Card
 
 	for _, arg := range args {
 		if filepath.IsAbs(arg) {

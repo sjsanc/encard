@@ -2,12 +2,13 @@ package encard
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/sjsanc/encard/internal/cards"
 )
 
 type Model struct {
 	Width            int
 	Height           int
-	Cards            []Card
+	Cards            []cards.Card
 	CurrentCardIndex int
 	IsCompleted      bool
 	IsShuffled       bool
@@ -17,7 +18,7 @@ func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
-func (m *Model) CurrentCard() Card {
+func (m *Model) CurrentCard() cards.Card {
 	return m.Cards[m.CurrentCardIndex]
 }
 

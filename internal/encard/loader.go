@@ -2,13 +2,13 @@ package encard
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
-	types "github.com/sjsanc/encard/internal/cards"
+	"github.com/sjsanc/encard/internal/cards"
+	"github.com/sjsanc/encard/internal/parsers"
 )
 
 var ENCARD_FOLDER_ROOT = "encard"
@@ -42,98 +42,9 @@ func ResolveRootPath() (string, error) {
 	return encardPath, nil
 }
 
-// `ParseMarkdownFile` parses a markdown file into a slice of cards.
-func ParseMarkdownFile(path string) ([]Card, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, fmt.Errorf("error reading file: %w", err)
-	}
-
-	chunks := strings.Split(string(data), "---")
-
-	// strings.Split always returns at least 1 element
-	if chunks[0] == "" {
-		return nil, fmt.Errorf("file cannot be empty: %s", path)
-	}
-
-	cards := make([]Card, 0)
-
-	for i, chunk := range chunks {
-		lines := strings.Split(strings.TrimSpace(chunk), "\n")
-
-		if len(lines) < 2 {
-			log.Printf("[%d] Parsing error: card must have at least two lines\n", i)
-			continue
-		}
-
-		front := lines[0]
-		if front[0] != '#' {
-			log.Printf("[%d] Parsing error: card front must start with a #\n", i)
-			for _, line := range lines {
-				log.Println("> " + line)
-			}
-			continue
-		}
-		front = strings.TrimPrefix(front, "# ")
-
-		back := lines[1:]
-
-		if back[0] == "" {
-			log.Printf("[%d] Parsing error: card back must not be empty\n", i)
-			continue
-		}
-
-		deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
-
-		// Multi-choice card
-		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
-			choices := make([]string, 0)
-			answer := -1
-
-			for i, line := range back {
-				if strings.HasPrefix(line, "-") {
-					choices = append(choices, strings.TrimPrefix(line, "- "))
-				} else if strings.HasPrefix(line, "*") {
-					choices = append(choices, strings.TrimPrefix(line, "* "))
-					answer = i
-				}
-			}
-
-			card := types.NewMultiChoice(deckName, front, choices, answer)
-			cards = append(cards, card)
-			continue
-		}
-
-		// Multi-answer card
-		if strings.HasPrefix(back[0], "[*]") || strings.HasPrefix(back[0], "[ ]") {
-			choices := make([]string, 0)
-			answers := make([]int, 0)
-
-			for i, line := range back {
-				if strings.HasPrefix(line, "[*]") {
-					choices = append(choices, strings.TrimPrefix(line, "[*] "))
-					answers = append(answers, i)
-				} else if strings.HasPrefix(line, "[ ]") {
-					choices = append(choices, strings.TrimPrefix(line, "[ ] "))
-				}
-			}
-
-			card := types.NewMultiAnswer(deckName, front, choices, answers)
-			cards = append(cards, card)
-			continue
-		}
-
-		// Basic card
-		card := types.NewBasic(deckName, front, strings.Join(back, "\n"))
-		cards = append(cards, card)
-	}
-
-	return cards, nil
-}
-
 // `ParseDirectory` parses a directory of files into a slice of cards.
-func ParseDirectory(path string) ([]Card, error) {
-	var cards []Card
+func ParseDirectory(path string) ([]cards.Card, error) {
+	var cards []cards.Card
 
 	file, err := os.ReadDir(path)
 	if err != nil {
@@ -145,7 +56,15 @@ func ParseDirectory(path string) ([]Card, error) {
 			continue
 		}
 		if filepath.Ext(f.Name()) == ".md" {
-			deck, err := ParseMarkdownFile(filepath.Join(path, f.Name()))
+			path := filepath.Join(path, f.Name())
+			deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
+
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return nil, fmt.Errorf("error reading file: %w", err)
+			}
+
+			deck, err := parsers.ParseMarkdown(string(data), deckName)
 			if err != nil {
 				return nil, err
 			}
@@ -157,8 +76,8 @@ func ParseDirectory(path string) ([]Card, error) {
 }
 
 // `LoadDeckFromPath` loads a deck of cards from a given path.
-func LoadDeckFromPath(path string) ([]Card, error) {
-	var cards []Card
+func LoadDeckFromPath(path string) ([]cards.Card, error) {
+	var cards []cards.Card
 
 	ext := filepath.Ext(path)
 
@@ -168,7 +87,15 @@ func LoadDeckFromPath(path string) ([]Card, error) {
 	}
 
 	if ext == ".md" {
-		deck, err := ParseMarkdownFile(path)
+		path := filepath.Join(path, path)
+		deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
+
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("error reading file: %w", err)
+		}
+
+		deck, err := parsers.ParseMarkdown(string(data), deckName)
 		if err != nil {
 			return nil, err
 		}
