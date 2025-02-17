@@ -4,12 +4,11 @@ import (
 	lg "github.com/charmbracelet/lipgloss"
 )
 
-var Question = lg.NewStyle().Foreground(lg.Color("#FF8F40")).Bold(true)
+var ns = lg.NewStyle()
 
-var CurrentChoice = lg.NewStyle().Foreground(lg.Color("#39BAE6"))
-var Choice = lg.NewStyle()
-var CorrectChoice = lg.NewStyle().Foreground(lg.Color("#13CE66"))
-var IncorrectChoice = lg.NewStyle().Foreground(lg.Color("#FF5C57"))
-var UnselectedChoice = lg.NewStyle().Foreground(lg.Color("#FF8F12"))
+var Question = ns.Foreground(lg.Color("#FF8F40")).Bold(true)
 
-var Answer = lg.NewStyle().Foreground(lg.Color("#FF8F12"))
+var Selected = ns.Foreground(lg.Color("#39BAE6"))
+var Correct = ns.Foreground(lg.Color("#13CE66"))
+var Incorrect = ns.Foreground(lg.Color("#FF5C57"))
+var IncorrectUnselected = ns.Foreground(lg.Color("#FF8F12"))

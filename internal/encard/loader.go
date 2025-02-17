@@ -7,6 +7,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	types "github.com/sjsanc/encard/internal/cards"
 )
 
 var ENCARD_FOLDER_ROOT = "encard"
@@ -81,66 +83,49 @@ func ParseMarkdownFile(path string) ([]Card, error) {
 			continue
 		}
 
+		deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
+
+		// Multi-choice card
 		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
-			ext := filepath.Ext(path)
-			deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
-
-			c := &MultipleChoiceCard{
-				deck:    deckName,
-				Front:   front,
-				Choices: make([]string, 0),
-			}
-
 			choices := make([]string, 0)
+			answer := -1
+
 			for i, line := range back {
 				if strings.HasPrefix(line, "-") {
 					choices = append(choices, strings.TrimPrefix(line, "- "))
 				} else if strings.HasPrefix(line, "*") {
 					choices = append(choices, strings.TrimPrefix(line, "* "))
-					c.Answer = i
+					answer = i
 				}
 			}
 
-			c.Choices = append(c.Choices, choices...)
-			cards = append(cards, c)
+			card := types.NewMultiChoice(deckName, front, choices, answer)
+			cards = append(cards, card)
 			continue
 		}
 
+		// Multi-answer card
 		if strings.HasPrefix(back[0], "[*]") || strings.HasPrefix(back[0], "[ ]") {
-			ext := filepath.Ext(path)
-			deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
-
-			c := &MultipleAnswerCard{
-				deck:    deckName,
-				Front:   front,
-				Choices: make([]string, 0),
-			}
-
 			choices := make([]string, 0)
+			answers := make([]int, 0)
+
 			for i, line := range back {
 				if strings.HasPrefix(line, "[*]") {
 					choices = append(choices, strings.TrimPrefix(line, "[*] "))
-					c.Answers = append(c.Answers, i)
+					answers = append(answers, i)
 				} else if strings.HasPrefix(line, "[ ]") {
 					choices = append(choices, strings.TrimPrefix(line, "[ ] "))
 				}
 			}
 
-			c.Choices = append(c.Choices, choices...)
-			cards = append(cards, c)
+			card := types.NewMultiAnswer(deckName, front, choices, answers)
+			cards = append(cards, card)
 			continue
 		}
 
-		ext := filepath.Ext(path)
-		deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
-
-		c := &BasicCard{
-			deck:  deckName,
-			front: front,
-			back:  strings.Join(back, "\n"),
-		}
-
-		cards = append(cards, c)
+		// Basic card
+		card := types.NewBasic(deckName, front, strings.Join(back, "\n"))
+		cards = append(cards, card)
 	}
 
 	return cards, nil

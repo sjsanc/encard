@@ -10,6 +10,17 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// Shuffles a slice of Cards
+// func Shuffle(cards []cards.Card) []cards.Card {
+// 	shuffled := make([]cards.Card, len(cards))
+// 	perm := rand.Perm(len(cards))
+// 	for i, v := range perm {
+// 		shuffled[v] = cards[i]
+// 	}
+// 	fmt.Println("Shuffled")
+// 	return shuffled
+// }
+
 func encardAction(ctx context.Context, cmd *cli.Command) error {
 	args := cmd.Args().Slice()
 
@@ -36,7 +47,7 @@ func encardAction(ctx context.Context, cmd *cli.Command) error {
 
 	if cmd.Bool("shuffle") {
 		model.IsShuffled = true
-		model.Cards = encard.Shuffle(model.Cards)
+		// model.Cards = encard.Shuffle(model.Cards)
 	}
 
 	program := tea.NewProgram(model, tea.WithAltScreen())

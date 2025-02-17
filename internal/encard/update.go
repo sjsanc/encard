@@ -1,6 +1,9 @@
 package encard
 
-import tea "github.com/charmbracelet/bubbletea"
+import (
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/sjsanc/encard/internal/cards"
+)
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -15,21 +18,21 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			m.Advance()
 		case " ":
-			if ma, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
+			if ma, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
 				ma.ToggleChoice()
 			}
 		case "down":
-			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
+			if mc, ok := m.CurrentCard().(*cards.MultiChoice); ok {
 				mc.NextChoice()
 			}
-			if mc, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
+			if mc, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
 				mc.NextChoice()
 			}
 		case "up":
-			if mc, ok := m.CurrentCard().(*MultipleChoiceCard); ok {
+			if mc, ok := m.CurrentCard().(*cards.MultiChoice); ok {
 				mc.PrevChoice()
 			}
-			if mc, ok := m.CurrentCard().(*MultipleAnswerCard); ok {
+			if mc, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
 				mc.PrevChoice()
 			}
 		}
