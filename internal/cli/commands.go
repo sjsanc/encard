@@ -7,10 +7,6 @@ import (
 )
 
 func Run(args []string) error {
-	for _, arg := range args {
-		println(arg)
-	}
-
 	cmd := &cli.Command{
 		Name:      "encard",
 		Usage:     "start the CLI",

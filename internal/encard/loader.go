@@ -55,6 +55,7 @@ func ParseDirectory(path string) ([]cards.Card, error) {
 		if f.IsDir() {
 			continue
 		}
+
 		if filepath.Ext(f.Name()) == ".md" {
 			path := filepath.Join(path, f.Name())
 			deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
@@ -87,7 +88,6 @@ func LoadDeckFromPath(path string) ([]cards.Card, error) {
 	}
 
 	if ext == ".md" {
-		path := filepath.Join(path, path)
 		deckName := strings.TrimSuffix(filepath.ToSlash(path), filepath.Ext(path))
 
 		data, err := os.ReadFile(path)

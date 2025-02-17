@@ -43,6 +43,13 @@ func ParseMarkdown(data, deck string) ([]cards.Card, error) {
 			continue
 		}
 
+		if strings.HasSuffix(front, "{}") {
+			cardA := cards.NewBasic(deck, strings.Replace(front, "{}", back[0], -1), back[1])
+			cardB := cards.NewBasic(deck, strings.Replace(front, "{}", back[1], -1), back[0])
+			result = append(result, cardA, cardB)
+			continue
+		}
+
 		// Multi-choice card
 		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
 			choices := make([]string, 0)
