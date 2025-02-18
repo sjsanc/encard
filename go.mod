@@ -1,17 +1,13 @@
 module github.com/sjsanc/encard
 
-go 1.23.5
+go 1.24
 
 require (
+	github.com/adrg/xdg v0.5.3
 	github.com/charmbracelet/bubbletea v1.2.4
 	github.com/charmbracelet/lipgloss v1.0.0
+	github.com/gobwas/glob v0.2.3
 	github.com/urfave/cli/v3 v3.0.0-beta1
-)
-
-require (
-	github.com/adrg/xdg v0.5.3 // indirect
-	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 )
 
 require (
