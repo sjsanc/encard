@@ -60,14 +60,14 @@ func BenchmarkLoadCards(b *testing.B) {
 	tmp := b.TempDir()
 
 	for i := 0; i < 100; i++ {
-		os.WriteFile(tmp+"/file"+fmt.Sprintf("%d", i)+".md", []byte(testCard), 0644)
+		_ = os.WriteFile(tmp+"/file"+fmt.Sprintf("%d", i)+".md", []byte(testCard), 0644)
 	}
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
 	for b.Loop() {
-		LoadCards(tmp, nil)
+		_, _ = LoadCards(tmp, nil)
 	}
 }
 
