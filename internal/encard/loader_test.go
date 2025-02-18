@@ -66,7 +66,7 @@ func BenchmarkLoadCards(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	for b.Loop() {
+	for i := 0; i < b.N; i++ {
 		_, _ = LoadCards(tmp, nil)
 	}
 }
