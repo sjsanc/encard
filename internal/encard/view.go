@@ -17,10 +17,10 @@ func (m *Model) View() string {
 
 	card := m.CurrentCard()
 
-	sb.WriteString(card.Render())
-
 	quarter := m.Width / 4
 	half := m.Width - quarter - quarter
+
+	sb.WriteString(card.Render())
 
 	base := lg.NewStyle().
 		Height(m.Height)

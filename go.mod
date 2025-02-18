@@ -11,6 +11,7 @@ require (
 require (
 	github.com/adrg/xdg v0.5.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
+	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 )
 
 require (

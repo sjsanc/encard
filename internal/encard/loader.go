@@ -26,6 +26,7 @@ func LoadCards(rootPath string, globs []glob.Glob) ([]cards.Card, error) {
 		defer wg.Done()
 		ext := filepath.Ext(path)
 		deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
+		deckName = strings.TrimPrefix(deckName, rootPath)
 
 		data, err := os.ReadFile(path)
 		if err != nil {
