@@ -1,3 +1,0 @@
-# Translate {}
-House
-Haus

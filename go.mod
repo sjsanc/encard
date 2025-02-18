@@ -8,6 +8,8 @@ require (
 	github.com/urfave/cli/v3 v3.0.0-beta1
 )
 
+require github.com/adrg/xdg v0.5.3 // indirect
+
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/x/ansi v0.4.5 // indirect
@@ -24,4 +26,5 @@ require (
 	golang.org/x/sync v0.9.0 // indirect
 	golang.org/x/sys v0.27.0 // indirect
 	golang.org/x/text v0.3.8 // indirect
+	gopkg.in/ini.v1 v1.67.0
 )

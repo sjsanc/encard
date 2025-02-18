@@ -7,69 +7,6 @@ import (
 	"testing"
 )
 
-func TestResolveRootPath(t *testing.T) {
-	tmp := t.TempDir()
-
-	tests := []struct {
-		name           string
-		envXdgDataHome string
-		envHome        string
-		expectErr      bool
-		expectPath     string
-	}{
-		{
-			name:           "neither XDG_DATA_HOME nor HOME are set",
-			envXdgDataHome: "",
-			envHome:        "",
-			expectErr:      true,
-		},
-		{
-			name:           "XDG_DATA_HOME is set",
-			envXdgDataHome: tmp + "/xdg_data_home",
-			envHome:        "",
-			expectPath:     tmp + "/xdg_data_home/encard",
-		},
-		{
-			name:           "XDG_DATA_HOME is not set and HOME is set",
-			envXdgDataHome: "",
-			envHome:        tmp + "/home",
-			expectPath:     tmp + "/home/encard",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Setenv("XDG_DATA_HOME", tt.envXdgDataHome)
-			t.Setenv("HOME", tt.envHome)
-
-			path, err := ResolveRootPath()
-
-			if tt.expectErr {
-				if err == nil {
-					t.Errorf("expected error, got nil")
-				}
-				return
-			}
-
-			if tt.expectPath != path {
-				t.Errorf("expected path %s, got %s", tt.expectPath, path)
-			}
-
-			info, err := os.Stat(path)
-			if err != nil {
-				t.Errorf("expected path %s to exist, got error: %v", path, err)
-			}
-			if !info.IsDir() {
-				t.Errorf("expected path %s to be a directory, got a file", path)
-			}
-
-			t.Cleanup(func() {
-				os.RemoveAll(path)
-			})
-		})
-	}
-}
-
 func TestLoadDeckFromPath(t *testing.T) {
 	log.SetOutput(io.Discard)
 	defer log.SetOutput(os.Stderr)

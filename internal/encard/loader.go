@@ -3,44 +3,12 @@ package encard
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
 	"github.com/sjsanc/encard/internal/cards"
 	"github.com/sjsanc/encard/internal/parsers"
 )
-
-var ENCARD_FOLDER_ROOT = "encard"
-
-var ErrNoDefaultPath = fmt.Errorf("neither XDG_DATA_HOME nor HOME are set")
-
-// `ResolveRootPath` returns the root path for the encard folder as a subdirectory of either $XDG_DATA_HOME or $HOME.
-func ResolveRootPath() (string, error) {
-	XDGDataHomePath := os.Getenv("XDG_DATA_HOME")
-	homePath, _ := os.UserHomeDir()
-
-	if XDGDataHomePath == "" && homePath == "" {
-		return "", ErrNoDefaultPath
-	}
-
-	var rootPath = XDGDataHomePath
-
-	if rootPath == "" {
-		rootPath = homePath
-	}
-
-	encardPath := path.Join(rootPath, ENCARD_FOLDER_ROOT)
-
-	_, err := os.Stat(rootPath)
-	if err != nil {
-		if err := os.MkdirAll(encardPath, 0755); err != nil {
-			return "", err
-		}
-	}
-
-	return encardPath, nil
-}
 
 // `ParseDirectory` parses a directory of files into a slice of cards.
 func ParseDirectory(path string) ([]cards.Card, error) {
@@ -79,6 +47,8 @@ func ParseDirectory(path string) ([]cards.Card, error) {
 // `LoadDeckFromPath` loads a deck of cards from a given path.
 func LoadDeckFromPath(path string) ([]cards.Card, error) {
 	var cards []cards.Card
+
+	fmt.Println(path)
 
 	ext := filepath.Ext(path)
 

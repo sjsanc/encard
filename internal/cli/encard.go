@@ -3,6 +3,7 @@ package cli
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,23 +13,34 @@ import (
 )
 
 func encardAction(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := encard.NewConfig(cmd.String("config"))
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
 	args := cmd.Args().Slice()
 
-	_, err := encard.ResolveRootPath()
-	if err != nil {
-		return fmt.Errorf("unable to resolve a default Card directory: %w", err)
-	}
+	matches := []string{}
+
+	filepath.WalkDir(cfg.CardsDir, func(path string, d fs.DirEntry, err error) error {
+		for _, arg := range args {
+			// TODO: handle filepath.Match error
+			matched, _ := filepath.Match(arg, d.Name())
+			if matched {
+				matches = append(matches, path)
+			}
+		}
+		return nil
+	})
 
 	var cards []cards.Card
 
-	for _, arg := range args {
-		if filepath.IsAbs(arg) {
-			deck, err := encard.LoadDeckFromPath(arg)
-			if err != nil {
-				return fmt.Errorf("%w", err)
-			}
-			cards = append(cards, deck...)
+	for _, match := range matches {
+		deck, err := encard.LoadDeckFromPath(match)
+		if err != nil {
+			return fmt.Errorf("%w", err)
 		}
+		cards = append(cards, deck...)
 	}
 
 	model := &encard.Model{
