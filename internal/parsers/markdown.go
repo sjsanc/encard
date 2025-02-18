@@ -19,6 +19,10 @@ func ParseMarkdown(data, deck string) ([]cards.Card, error) {
 	var result []cards.Card
 
 	for i, chunk := range chunks {
+		if chunk == "" {
+			continue // ignore the empty chunks in the case of single card files
+		}
+
 		lines := strings.Split(strings.TrimSpace(chunk), "\n")
 
 		if len(lines) < 2 {

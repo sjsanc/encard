@@ -1,22 +1,20 @@
 package encard
 
 import (
-	"io"
-	"log"
+	"fmt"
 	"os"
 	"testing"
+
+	"github.com/gobwas/glob"
 )
 
-func TestLoadDeckFromPath(t *testing.T) {
-	log.SetOutput(io.Discard)
-	defer log.SetOutput(os.Stderr)
-
+func TestLoadCards(t *testing.T) {
 	tests := []struct {
 		name      string
 		path      string
-		setupFn   func()
-		expectErr bool
+		globs     []glob.Glob
 		expectLen int
+		expectErr bool
 	}{
 		{
 			name:      "invalid path",
@@ -24,40 +22,15 @@ func TestLoadDeckFromPath(t *testing.T) {
 			expectErr: true,
 		},
 		{
-			name:      "valid path and invalid extension",
-			path:      "testdata/invalid.txt",
-			expectErr: true,
-		},
-		{
-			name:      "valid path and empty markdown file",
-			path:      "testdata/md/empty.md",
-			expectErr: true,
-		},
-		{
-			name:      "valid path and empty directory",
-			path:      "testdata/empty",
-			expectErr: true,
-		},
-		{
-			name:      "valid path and partially valid markdown file",
-			path:      "testdata/md/partial.md",
-			expectLen: 2,
-		},
-		{
-			name:      "valid path and valid markdown file",
-			path:      "testdata/md/valid.md",
-			expectLen: 3,
-		},
-		{
-			name:      "valid path and valid markdown directory",
-			path:      "testdata/md/dir",
-			expectLen: 6,
+			name:      "valid path and no globs matches everything",
+			path:      "testdata",
+			expectLen: 5,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cards, err := LoadDeckFromPath(tt.path)
+			cards, err := LoadCards(tt.path, tt.globs)
 
 			if tt.expectErr {
 				if err == nil {
@@ -74,3 +47,34 @@ func TestLoadDeckFromPath(t *testing.T) {
 		})
 	}
 }
+
+var testCard = `
+# Question 1
+Answer 1
+---
+# Question 2
+Answer 2
+`
+
+func BenchmarkLoadCards(b *testing.B) {
+	tmp := b.TempDir()
+
+	for i := 0; i < 100; i++ {
+		os.WriteFile(tmp+"/file"+fmt.Sprintf("%d", i)+".md", []byte(testCard), 0644)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for b.Loop() {
+		LoadCards(tmp, nil)
+	}
+}
+
+// BenchmarkLoadCards-16               1989            592441 ns/op          152429 B/op    1631 allocs/op
+// PASS
+// ok      github.com/sjsanc/encard/internal/encard        1.183s
+
+// BenchmarkLoadCards-16               6831            170432 ns/op          160135 B/op    1829 allocs/op
+// PASS
+// ok      github.com/sjsanc/encard/internal/encard        1.169s

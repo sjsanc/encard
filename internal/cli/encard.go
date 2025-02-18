@@ -3,11 +3,9 @@ package cli
 import (
 	"context"
 	"fmt"
-	"io/fs"
-	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/sjsanc/encard/internal/cards"
+	"github.com/gobwas/glob"
 	"github.com/sjsanc/encard/internal/encard"
 	"github.com/urfave/cli/v3"
 )
@@ -20,27 +18,18 @@ func encardAction(ctx context.Context, cmd *cli.Command) error {
 
 	args := cmd.Args().Slice()
 
-	matches := []string{}
+	globs := make([]glob.Glob, len(args))
+	for i, arg := range args {
+		globs[i] = glob.MustCompile(arg)
+	}
 
-	filepath.WalkDir(cfg.CardsDir, func(path string, d fs.DirEntry, err error) error {
-		for _, arg := range args {
-			// TODO: handle filepath.Match error
-			matched, _ := filepath.Match(arg, d.Name())
-			if matched {
-				matches = append(matches, path)
-			}
-		}
-		return nil
-	})
+	cards, err := encard.LoadCards(cfg.CardsDir, globs)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
 
-	var cards []cards.Card
-
-	for _, match := range matches {
-		deck, err := encard.LoadDeckFromPath(match)
-		if err != nil {
-			return fmt.Errorf("%w", err)
-		}
-		cards = append(cards, deck...)
+	if len(cards) == 0 {
+		return fmt.Errorf("no cards found")
 	}
 
 	model := &encard.Model{
