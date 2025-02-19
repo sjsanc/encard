@@ -14,7 +14,7 @@ import (
 )
 
 // `LoadCards` recursively loads globbed cards from a given root path.
-func LoadCards(rootPath string, globs []glob.Glob) (map[string][]cards.Card, error) {
+func LoadCards(rootPath string, globs []glob.Glob) (DeckMap, error) {
 	if rootPath == "" {
 		return nil, fmt.Errorf("invalid root path")
 	}
@@ -68,7 +68,7 @@ func LoadCards(rootPath string, globs []glob.Glob) (map[string][]cards.Card, err
 		return nil, fmt.Errorf("error walking directory: %w", err)
 	}
 
-	result := map[string][]cards.Card{}
+	result := DeckMap{}
 	m.Range(func(key, value interface{}) bool {
 		result[key.(string)] = value.([]cards.Card)
 		return true

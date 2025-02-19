@@ -11,6 +11,11 @@ require (
 )
 
 require (
+	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
+	github.com/muesli/reflow v0.3.0 // indirect
+)
+
+require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/charmbracelet/x/ansi v0.4.5 // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect

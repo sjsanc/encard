@@ -3,7 +3,7 @@ version: '3'
 tasks:
   run:
     cmds:
-      - go run cmd/encard/*.go
+      - go run cmd/encard/encard.go
 
   lint:
     cmds:
@@ -15,4 +15,4 @@ tasks:
 
   build:
     cmds:
-      - go build cmd/encard/main.go
+      - go build cmd/encard/encard.go

@@ -1,4 +1,4 @@
-package main
+package encard
 
 import (
 	"context"
@@ -6,12 +6,11 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gobwas/glob"
-	"github.com/sjsanc/encard/internal/encard"
 	"github.com/urfave/cli/v3"
 )
 
-func doRootAction(ctx context.Context, cmd *cli.Command) error {
-	cfg, err := encard.NewConfig(cmd.String("config"))
+func DoRootAction(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := NewConfig(cmd.String("config"))
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -23,7 +22,7 @@ func doRootAction(ctx context.Context, cmd *cli.Command) error {
 		globs[i] = glob.MustCompile(arg)
 	}
 
-	decks, err := encard.LoadCards(cfg.CardsDir, globs)
+	decks, err := LoadCards(cfg.CardsDir, globs)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
@@ -38,8 +37,8 @@ func doRootAction(ctx context.Context, cmd *cli.Command) error {
 	}
 	first := keys[0]
 
-	model := &encard.Model{
-		Cards:          decks,
+	model := &Model{
+		DeckMap:        decks,
 		CurrentDeckKey: first,
 	}
 

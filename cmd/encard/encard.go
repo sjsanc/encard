@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/sjsanc/encard/internal/encard"
 	"github.com/urfave/cli/v3"
 )
 
@@ -20,7 +21,7 @@ func run(args []string) error {
 				Usage:   "Shuffle the cards before starting",
 			},
 		},
-		Action: doRootAction,
+		Action: encard.DoRootAction,
 	}
 
 	return cmd.Run(context.Background(), args)

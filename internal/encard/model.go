@@ -5,10 +5,12 @@ import (
 	"github.com/sjsanc/encard/internal/cards"
 )
 
+type DeckMap map[string][]cards.Card
+
 type Model struct {
 	Width            int
 	Height           int
-	Cards            map[string][]cards.Card
+	DeckMap          DeckMap
 	CurrentDeckKey   string
 	CurrentCardIndex int
 	IsCompleted      bool
@@ -20,7 +22,7 @@ func (m *Model) Init() tea.Cmd {
 }
 
 func (m *Model) CurrentDeck() []cards.Card {
-	return m.Cards[m.CurrentDeckKey]
+	return m.DeckMap[m.CurrentDeckKey]
 }
 
 func (m *Model) CurrentCard() cards.Card {
@@ -29,6 +31,7 @@ func (m *Model) CurrentCard() cards.Card {
 }
 
 func (m *Model) Advance() {
+	cards := m.CurrentDeck()
 	current := m.CurrentCard()
 
 	if !current.Flipped() {
@@ -36,7 +39,7 @@ func (m *Model) Advance() {
 		return
 	}
 
-	if m.CurrentCardIndex >= len(m.Cards)-1 {
+	if m.CurrentCardIndex >= len(cards)-1 {
 		m.IsCompleted = true
 		return
 	}
