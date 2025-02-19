@@ -8,12 +8,12 @@ import (
 	"github.com/sjsanc/encard/internal/cards"
 )
 
-func ParseMarkdown(data, deck string) ([]cards.Card, error) {
+func ParseMarkdown(data string) ([]cards.Card, error) {
 	chunks := strings.Split(string(data), "---")
 
 	// strings.Split always returns at least 1 element
 	if chunks[0] == "" {
-		return nil, fmt.Errorf("deck cannot be empty: %s", deck)
+		return nil, fmt.Errorf("deck cannot be empty")
 	}
 
 	var result []cards.Card
@@ -48,8 +48,8 @@ func ParseMarkdown(data, deck string) ([]cards.Card, error) {
 		}
 
 		if strings.HasSuffix(front, "{}") {
-			cardA := cards.NewBasic(deck, strings.Replace(front, "{}", back[0], -1), back[1])
-			cardB := cards.NewBasic(deck, strings.Replace(front, "{}", back[1], -1), back[0])
+			cardA := cards.NewBasic(strings.Replace(front, "{}", back[0], -1), back[1])
+			cardB := cards.NewBasic(strings.Replace(front, "{}", back[1], -1), back[0])
 			result = append(result, cardA, cardB)
 			continue
 		}
@@ -68,7 +68,7 @@ func ParseMarkdown(data, deck string) ([]cards.Card, error) {
 				}
 			}
 
-			card := cards.NewMultiChoice(deck, front, choices, answer)
+			card := cards.NewMultiChoice(front, choices, answer)
 			result = append(result, card)
 			continue
 		}
@@ -87,13 +87,13 @@ func ParseMarkdown(data, deck string) ([]cards.Card, error) {
 				}
 			}
 
-			card := cards.NewMultiAnswer(deck, front, choices, answers)
+			card := cards.NewMultiAnswer(front, choices, answers)
 			result = append(result, card)
 			continue
 		}
 
 		// Basic card
-		card := cards.NewBasic(deck, front, strings.Join(back, "\n"))
+		card := cards.NewBasic(front, strings.Join(back, "\n"))
 		result = append(result, card)
 	}
 

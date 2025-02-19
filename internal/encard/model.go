@@ -8,7 +8,8 @@ import (
 type Model struct {
 	Width            int
 	Height           int
-	Cards            []cards.Card
+	Cards            map[string][]cards.Card
+	CurrentDeckKey   string
 	CurrentCardIndex int
 	IsCompleted      bool
 	IsShuffled       bool
@@ -18,8 +19,13 @@ func (m *Model) Init() tea.Cmd {
 	return nil
 }
 
+func (m *Model) CurrentDeck() []cards.Card {
+	return m.Cards[m.CurrentDeckKey]
+}
+
 func (m *Model) CurrentCard() cards.Card {
-	return m.Cards[m.CurrentCardIndex]
+	deck := m.CurrentDeck()
+	return deck[m.CurrentCardIndex]
 }
 
 func (m *Model) Advance() {

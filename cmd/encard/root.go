@@ -1,4 +1,4 @@
-package cli
+package main
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func encardAction(ctx context.Context, cmd *cli.Command) error {
+func doRootAction(ctx context.Context, cmd *cli.Command) error {
 	cfg, err := encard.NewConfig(cmd.String("config"))
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -23,17 +23,24 @@ func encardAction(ctx context.Context, cmd *cli.Command) error {
 		globs[i] = glob.MustCompile(arg)
 	}
 
-	cards, err := encard.LoadCards(cfg.CardsDir, globs)
+	decks, err := encard.LoadCards(cfg.CardsDir, globs)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	if len(cards) == 0 {
+	if len(decks) == 0 {
 		return fmt.Errorf("no cards found")
 	}
 
+	keys := make([]string, 0, len(decks))
+	for k := range decks {
+		keys = append(keys, k)
+	}
+	first := keys[0]
+
 	model := &encard.Model{
-		Cards: cards,
+		Cards:          decks,
+		CurrentDeckKey: first,
 	}
 
 	if cmd.Bool("shuffle") {

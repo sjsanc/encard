@@ -13,10 +13,9 @@ type MultiChoice struct {
 	current int
 }
 
-func NewMultiChoice(deck string, front string, choices []string, answer int) *MultiChoice {
+func NewMultiChoice(front string, choices []string, answer int) *MultiChoice {
 	return &MultiChoice{
 		CardBase: CardBase{
-			deck:  deck,
 			front: front,
 		},
 		choices: choices,

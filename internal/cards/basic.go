@@ -12,10 +12,9 @@ type Basic struct {
 	back string
 }
 
-func NewBasic(deck string, front string, back string) *Basic {
+func NewBasic(front string, back string) *Basic {
 	return &Basic{
 		CardBase: CardBase{
-			deck:  deck,
 			front: front,
 		},
 		back: back,

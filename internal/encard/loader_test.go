@@ -71,10 +71,17 @@ func BenchmarkLoadCards(b *testing.B) {
 	}
 }
 
+// Sync
 // BenchmarkLoadCards-16               1989            592441 ns/op          152429 B/op    1631 allocs/op
 // PASS
 // ok      github.com/sjsanc/encard/internal/encard        1.183s
 
+// Sync + WaitGroup
 // BenchmarkLoadCards-16               6831            170432 ns/op          160135 B/op    1829 allocs/op
 // PASS
 // ok      github.com/sjsanc/encard/internal/encard        1.169s
+
+// SYnc + WaitGroup + Worker
+// BenchmarkLoadCards-16               5335            219899 ns/op          167097 B/op       1964 allocs/op
+// PASS
+// ok      github.com/sjsanc/encard/internal/encard        1.205s

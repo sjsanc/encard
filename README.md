@@ -2,13 +2,12 @@
   <img src="docs/logo.png" alt="Encard Logo" width="86">
 </p>
 
+<h1 align="center">Encard</h1>
 
 <div align="center">
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/sjsanc/encard/.github/workflows/go.yml?branch=master)](https://github.com/sjsanc/encard/actions)
 </div>
-
-<h1 align="center">Encard</h1>
 
 Encard is a filesystem-based flashcard TUI. It stores your cards inside regular files, allowing you to manipulate them with existing shell tooling. 
 

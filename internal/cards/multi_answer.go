@@ -15,10 +15,9 @@ type MultiAnswer struct {
 	current  int
 }
 
-func NewMultiAnswer(deck string, front string, choices []string, answers []int) *MultiAnswer {
+func NewMultiAnswer(front string, choices []string, answers []int) *MultiAnswer {
 	return &MultiAnswer{
 		CardBase: CardBase{
-			deck:  deck,
 			front: front,
 		},
 		choices:  choices,

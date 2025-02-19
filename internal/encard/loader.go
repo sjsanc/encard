@@ -14,61 +14,65 @@ import (
 )
 
 // `LoadCards` recursively loads globbed cards from a given root path.
-func LoadCards(rootPath string, globs []glob.Glob) ([]cards.Card, error) {
+func LoadCards(rootPath string, globs []glob.Glob) (map[string][]cards.Card, error) {
 	if rootPath == "" {
 		return nil, fmt.Errorf("invalid root path")
 	}
 
 	var wg sync.WaitGroup
-	resultChan := make(chan []cards.Card)
+	m := sync.Map{}
+	fileChan := make(chan string, 100)
+	const workerCount = 25
 
-	processFile := func(path string) {
-		defer wg.Done()
-		ext := filepath.Ext(path)
-		deckName := strings.TrimSuffix(filepath.ToSlash(path), ext)
-		deckName = strings.TrimPrefix(deckName, rootPath)
+	worker := func() {
+		for path := range fileChan {
+			ext := filepath.Ext(path)
+			deck := strings.TrimPrefix(strings.TrimPrefix(filepath.ToSlash(strings.TrimSuffix(path, ext)), rootPath), "/")
 
-		data, err := os.ReadFile(path)
-		if err != nil {
-			fmt.Printf("Error reading file %s: %v\n", path, err)
-			return
+			data, err := os.ReadFile(path)
+			if err != nil {
+				fmt.Printf("error reading file: %v\n", err)
+				continue
+			}
+
+			var cards []cards.Card
+			if ext == ".md" {
+				c, _ := parsers.ParseMarkdown(string(data))
+				cards = c
+			}
+			if len(cards) > 0 {
+				m.Store(deck, cards)
+			}
 		}
+		wg.Done()
+	}
 
-		var cards []cards.Card
-		if ext == ".md" {
-			deck, _ := parsers.ParseMarkdown(string(data), deckName)
-			cards = append(cards, deck...)
-		}
-
-		resultChan <- cards
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go worker()
 	}
 
 	err := filepath.WalkDir(rootPath, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking directory: %w", err)
 		}
-
 		if !d.IsDir() {
-			wg.Add(1)
-			go processFile(path)
+			fileChan <- path
 		}
-
 		return nil
 	})
+	close(fileChan)
+	wg.Wait()
 
 	if err != nil {
 		return nil, fmt.Errorf("error walking directory: %w", err)
 	}
 
-	go func() {
-		wg.Wait()
-		close(resultChan)
-	}()
+	result := map[string][]cards.Card{}
+	m.Range(func(key, value interface{}) bool {
+		result[key.(string)] = value.([]cards.Card)
+		return true
+	})
 
-	var allCards []cards.Card
-	for cards := range resultChan {
-		allCards = append(allCards, cards...)
-	}
-
-	return allCards, nil
+	return result, nil
 }

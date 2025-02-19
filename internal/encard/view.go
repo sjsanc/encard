@@ -28,7 +28,7 @@ func (m *Model) View() string {
 	left := base.
 		Width(quarter).
 		Align(lg.Right, lg.Top).
-		Render(card.Deck())
+		Render(m.CurrentDeckKey + " ➜ ")
 
 	mid := base.
 		Width(half).
