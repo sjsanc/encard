@@ -11,7 +11,8 @@ tasks:
 
   test:
     cmds:
-      - go test -v ./...
+      # - go test -v ./...
+      - set -o pipefail && go test -v ./... -json | tparse -all
 
   build:
     cmds:

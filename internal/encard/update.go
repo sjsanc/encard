@@ -2,39 +2,20 @@ package encard
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/sjsanc/encard/internal/cards"
 )
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.Width = msg.Width
-		m.Height = msg.Height
+		m.width = msg.Width
+		m.height = msg.Height
 	case tea.KeyMsg:
 		key := msg.String()
 		switch key {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "enter":
-			m.Advance()
-		case " ":
-			if ma, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
-				ma.ToggleChoice()
-			}
-		case "down":
-			if mc, ok := m.CurrentCard().(*cards.MultiChoice); ok {
-				mc.NextChoice()
-			}
-			if mc, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
-				mc.NextChoice()
-			}
-		case "up":
-			if mc, ok := m.CurrentCard().(*cards.MultiChoice); ok {
-				mc.PrevChoice()
-			}
-			if mc, ok := m.CurrentCard().(*cards.MultiAnswer); ok {
-				mc.PrevChoice()
-			}
+		default:
+			m.session.Update(key)
 		}
 	}
 

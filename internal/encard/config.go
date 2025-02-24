@@ -19,14 +19,15 @@ var DefaultLogsDir = xdg.StateHome + "/encard/logs"
 var DefaultConfigPath = xdg.ConfigHome + "/encard/config.ini"
 
 func NewConfig(configPath string) (*Config, error) {
+	// If a config override is provided
 	if configPath != "" {
 		return LoadConfigFromFile(configPath)
 	}
-
+	// If a config file exists in the default location
 	if _, err := os.Stat(DefaultConfigPath); err == nil {
 		return LoadConfigFromFile(DefaultConfigPath)
 	}
-
+	// Otherwise, load the default configuration
 	return LoadDefaultConfig()
 }
 

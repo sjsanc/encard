@@ -1,75 +1,31 @@
 package cards
 
-import (
-	"strings"
-
-	"github.com/sjsanc/encard/internal/styles"
-)
-
 type MultiChoice struct {
-	CardBase
-	choices []string
-	answer  int
-	current int
+	Deck          string
+	Front         string
+	Choices       []string
+	Answer        int
+	CurrentChoice int
 }
 
-func NewMultiChoice(front string, choices []string, answer int) *MultiChoice {
+func NewMultiChoice(deck string, front string, choices []string, answer int) *MultiChoice {
 	return &MultiChoice{
-		CardBase: CardBase{
-			front: front,
-		},
-		choices: choices,
-		answer:  answer,
+		Deck:    deck,
+		Front:   front,
+		Choices: choices,
+		Answer:  answer,
 	}
 }
 
-func (c *MultiChoice) Render() string {
-	sb := strings.Builder{}
-	sb.WriteString(styles.Question.Render(c.front) + "\n")
-
-	for i, choice := range c.choices {
-		if c.flipped {
-			// Selected + Correct
-			if c.current == i && c.answer == i {
-				sb.WriteString(styles.Correct.Render("* "+choice+" (correct!)") + "\n")
-			}
-
-			// Selected + Incorrect
-			if c.current == i && c.answer != i {
-				sb.WriteString(styles.Incorrect.Render("* "+choice+" (incorrect!)") + "\n")
-			}
-
-			// Not Selected + Correct
-			if c.current != i && c.answer == i {
-				sb.WriteString(styles.IncorrectUnselected.Render("- "+choice+" (answer)") + "\n")
-			}
-
-			// Not Selected + Incorrect
-			if c.current != i && c.answer != i {
-				sb.WriteString("- " + choice + "\n")
-			}
-		} else {
-			if c.current == i {
-				sb.WriteString(styles.Selected.Render("* "+choice) + "\n")
-			} else {
-				sb.WriteString("- " + choice + "\n")
-			}
-		}
+func (c *MultiChoice) Update(key string) bool {
+	switch key {
+	case "up":
+		c.CurrentChoice = (c.CurrentChoice - 1 + len(c.Choices)) % len(c.Choices)
+	case "down":
+		c.CurrentChoice = (c.CurrentChoice + 1) % len(c.Choices)
+	case "space":
+		c.Answer = c.CurrentChoice
+		return true
 	}
-
-	return sb.String()
-}
-
-func (c *MultiChoice) NextChoice() {
-	if c.flipped {
-		return
-	}
-	c.current = (c.current + 1) % len(c.choices)
-}
-
-func (c *MultiChoice) PrevChoice() {
-	if c.flipped {
-		return
-	}
-	c.current = (c.current - 1 + len(c.choices)) % len(c.choices)
+	return false
 }

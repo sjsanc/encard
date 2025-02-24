@@ -23,8 +23,32 @@ func TestLoadCards(t *testing.T) {
 		},
 		{
 			name:      "valid path and no globs matches everything",
-			path:      "testdata",
-			expectLen: 5,
+			path:      "testdata/loader",
+			expectLen: 9,
+		},
+		{
+			name:      "load all .md files",
+			path:      "testdata/loader",
+			globs:     []glob.Glob{glob.MustCompile("*.md")},
+			expectLen: 9,
+		},
+		{
+			name:      "only load files that match",
+			path:      "testdata/loader",
+			globs:     []glob.Glob{glob.MustCompile("*/one.md")},
+			expectLen: 6,
+		},
+		{
+			name:      "only folders that match",
+			path:      "testdata/loader",
+			globs:     []glob.Glob{glob.MustCompile("*/nested/*")},
+			expectLen: 3,
+		},
+		{
+			name:      "load an empty file",
+			path:      "testdata/loader",
+			globs:     []glob.Glob{glob.MustCompile("*/empty.md")},
+			expectLen: 0,
 		},
 	}
 

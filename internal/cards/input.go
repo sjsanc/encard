@@ -1,55 +1,41 @@
 package cards
 
 import (
-	"strings"
+	"math"
 
 	"github.com/agnivade/levenshtein"
-	"github.com/sjsanc/encard/internal/styles"
 )
 
 type Input struct {
-	CardBase
-	answer string
-	input  string
+	Deck         string
+	Front        string
+	Answer       string
+	CurrentInput string
+	IsMatched    bool
 }
 
-func NewInput(front string, answer string) *Input {
+func NewInput(deck string, front string, answer string) *Input {
 	return &Input{
-		CardBase: CardBase{
-			front: front,
-		},
-		answer: answer,
+		Deck:   deck,
+		Front:  front,
+		Answer: answer,
 	}
 }
 
-func (c *Input) Render() string {
-	sb := strings.Builder{}
-
-	sb.WriteString(styles.Question.Render(c.front) + "\n")
-
-	distance := levenshtein.ComputeDistance(c.input, c.answer)
-	isCorrect := threshold(len(c.answer), distance)
-
-	if c.flipped {
-		if isCorrect {
-			sb.WriteString(styles.Correct.Render(c.input) + "\n")
-		} else {
-			sb.WriteString(styles.Incorrect.Render(c.input) + "\n")
+func (c *Input) Update(key string) bool {
+	switch key {
+	case "backspace":
+		if len(c.CurrentInput) > 0 {
+			c.CurrentInput = c.CurrentInput[:len(c.CurrentInput)-1]
 		}
-		sb.WriteString(styles.Selected.Render(c.answer) + "\n")
+	case "enter":
+		return true // flip the card
+	default:
+		c.CurrentInput += key
 	}
 
-	return sb.String()
-}
+	tolerance := int(math.Max(5.0, float64(len(c.Answer)/10))) // 10% of length, but at least 5
+	c.IsMatched = levenshtein.ComputeDistance(c.Answer, c.CurrentInput) <= tolerance
 
-func threshold(length, distance int) bool {
-	tolerance := max(5, length/10) // 10% of length, but at least 5
-	return distance <= tolerance
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return false
 }

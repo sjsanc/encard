@@ -22,30 +22,18 @@ func DoRootAction(ctx context.Context, cmd *cli.Command) error {
 		globs[i] = glob.MustCompile(arg)
 	}
 
-	decks, err := LoadCards(cfg.CardsDir, globs)
+	cards, err := LoadCards(cfg.CardsDir, globs)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
-	if len(decks) == 0 {
+	if len(cards) == 0 {
 		return fmt.Errorf("no cards found")
 	}
 
-	keys := make([]string, 0, len(decks))
-	for k := range decks {
-		keys = append(keys, k)
-	}
-	first := keys[0]
+	session := NewSession(cards, cmd.Bool("shuffle"))
 
-	model := &Model{
-		DeckMap:        decks,
-		CurrentDeckKey: first,
-	}
-
-	if cmd.Bool("shuffle") {
-		model.IsShuffled = true
-		// model.Cards = encard.Shuffle(model.Cards)
-	}
+	model := NewModel(session)
 
 	program := tea.NewProgram(model, tea.WithAltScreen())
 	if _, err := program.Run(); err != nil {
