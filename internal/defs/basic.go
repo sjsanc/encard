@@ -1,6 +1,7 @@
-package cards
+package defs
 
 type Basic struct {
+	Base
 	Deck  string
 	Front string
 	Back  string
@@ -14,6 +15,9 @@ func NewBasic(deck string, front string, back string) *Basic {
 	}
 }
 
-func (c *Basic) Update(input string) bool {
-	return true // flip the card
+func (c *Basic) Update(key string) {
+	switch key {
+	case "enter":
+		c.Flip()
+	}
 }

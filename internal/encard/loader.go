@@ -9,17 +9,17 @@ import (
 	"strings"
 
 	"github.com/gobwas/glob"
-	"github.com/sjsanc/encard/internal/cards"
+	"github.com/sjsanc/encard/internal/defs"
 	"github.com/sjsanc/encard/internal/parsers"
 )
 
 // `LoadCards` recursively loads globbed cards from a given root path.
-func LoadCards(root string, globs []glob.Glob) ([]cards.Card, error) {
+func LoadCards(root string, globs []glob.Glob) ([]defs.Card, error) {
 	if root == "" {
 		return nil, fmt.Errorf("invalid root path")
 	}
 
-	var cards []cards.Card
+	var cards []defs.Card
 
 	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil || d.IsDir() {

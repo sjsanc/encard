@@ -2,10 +2,10 @@ package encard
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/sjsanc/encard/internal/cards"
+	"github.com/sjsanc/encard/internal/defs"
 )
 
-type DeckMap map[string][]cards.Card
+type DeckMap map[string][]defs.Card
 
 type Model struct {
 	width   int

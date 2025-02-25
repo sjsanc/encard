@@ -1,24 +1,24 @@
 package encard
 
 import (
-	"github.com/sjsanc/encard/internal/cards"
+	"github.com/sjsanc/encard/internal/defs"
 )
 
-func RenderCard(card cards.Card, flipped bool) string {
+func RenderCard(card defs.Card, flipped bool) string {
 	switch c := card.(type) {
-	case *cards.Basic:
+	case *defs.Basic:
 		return renderBasicCard(c, flipped)
-	case *cards.Input:
+	case *defs.Input:
 		return renderInputCard(c, flipped)
-	case *cards.MultiChoice:
+	case *defs.MultiChoice:
 		return renderMultiChoiceCard(c, flipped)
-	case *cards.MultiAnswer:
+	case *defs.MultiAnswer:
 		return renderMultiAnswerCard(c, flipped)
 	}
 	return ""
 }
 
-func renderBasicCard(card *cards.Basic, flipped bool) string {
+func renderBasicCard(card *defs.Basic, flipped bool) string {
 	// sb := strings.Builder{}
 
 	// sb.WriteString(styles.Question.Render(card.front) + "\n")
@@ -37,7 +37,7 @@ func renderBasicCard(card *cards.Basic, flipped bool) string {
 	return ""
 }
 
-func renderInputCard(card *cards.Input, flipped bool) string {
+func renderInputCard(card *defs.Input, flipped bool) string {
 	// sb := strings.Builder{}
 
 	// sb.WriteString(styles.Question.Render(c.front) + "\n")
@@ -58,7 +58,7 @@ func renderInputCard(card *cards.Input, flipped bool) string {
 	return ""
 }
 
-func renderMultiChoiceCard(card *cards.MultiChoice, flipped bool) string {
+func renderMultiChoiceCard(card *defs.MultiChoice, flipped bool) string {
 	// sb := strings.Builder{}
 	// sb.WriteString(styles.Question.Render(c.front) + "\n")
 
@@ -96,7 +96,7 @@ func renderMultiChoiceCard(card *cards.MultiChoice, flipped bool) string {
 	return ""
 }
 
-func renderMultiAnswerCard(c *cards.MultiAnswer, flipped bool) string {
+func renderMultiAnswerCard(c *defs.MultiAnswer, flipped bool) string {
 	// sb := strings.Builder{}
 	// sb.WriteString(styles.Question.Render(c.front) + "\n")
 
