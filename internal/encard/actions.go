@@ -31,7 +31,12 @@ func DoRootAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("no cards found")
 	}
 
-	session := NewSession(cards, cmd.Bool("shuffle"))
+	opts := &Opts{
+		shuffled: cmd.Bool("shuffle"),
+		verbose:  cmd.Bool("verbose"),
+	}
+
+	session := NewSession(cards, opts)
 
 	model := NewModel(session)
 

@@ -16,7 +16,7 @@ func TestSession_Basic(t *testing.T) {
 	cards, err := LoadCards("testdata/session/basic.md", nil)
 	assertLoader(t, cards, err)
 
-	session := NewSession(cards, false)
+	session := NewSession(cards, &Opts{})
 
 	session.Update("enter") // flip
 	assert.True(t, session.CurrentCard().Flipped())
@@ -37,7 +37,7 @@ func TestSession_MultiAnswer(t *testing.T) {
 	cards, err := LoadCards("testdata/session/multianswer.md", nil)
 	assertLoader(t, cards, err)
 
-	session := NewSession(cards, false)
+	session := NewSession(cards, &Opts{})
 
 	session.Update("space") // select
 	card := session.CurrentCard().(*defs.MultiAnswer)
@@ -90,7 +90,7 @@ func TestSession_MultiChoice(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(cards))
 
-	session := NewSession(cards, false)
+	session := NewSession(cards, &Opts{})
 
 	assert.False(t, session.CurrentCard().Flipped())
 

@@ -10,18 +10,35 @@ import (
 type Session struct {
 	cards    []defs.Card
 	current  int
-	finished bool
-	shuffled bool
+	finished bool // Whether the session is finished
+	opts     *Opts
 }
 
-func NewSession(cards []defs.Card, shuffled bool) *Session {
-	if shuffled {
+type Opts struct {
+	shuffled bool
+	verbose  bool
+}
+
+var logger *Logger
+
+func NewSession(cards []defs.Card, opts *Opts) *Session {
+	if opts.verbose {
+		logger = NewLogger(true)
+		logger.Printf("verbose logging enabled")
+	} else {
+		logger = NewLogger(false)
+	}
+
+	logger.Printf("%d cards loaded", len(cards))
+
+	if opts.shuffled {
+		logger.Println("shuffling cards")
 		shuffle(cards)
 	}
 
 	return &Session{
-		cards:    cards,
-		shuffled: shuffled,
+		cards: cards,
+		opts:  opts,
 	}
 }
 

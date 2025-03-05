@@ -20,6 +20,11 @@ func run(args []string) error {
 				Aliases: []string{"s"},
 				Usage:   "Shuffle the cards before starting",
 			},
+			&cli.BoolFlag{
+				Name:    "verbose",
+				Aliases: []string{"v"},
+				Usage:   "Print verbose output",
+			},
 		},
 		Action: encard.DoRootAction,
 	}
