@@ -2,8 +2,6 @@ package defs
 
 type MultiChoice struct {
 	Base
-	Deck    string
-	Front   string
 	Choices []string
 	Answer  int
 	Current int
@@ -11,8 +9,10 @@ type MultiChoice struct {
 
 func NewMultiChoice(deck string, front string, choices []string, answer int) *MultiChoice {
 	return &MultiChoice{
-		Deck:    deck,
-		Front:   front,
+		Base: Base{
+			deck:  deck,
+			front: front,
+		},
 		Choices: choices,
 		Answer:  answer,
 	}
@@ -27,4 +27,8 @@ func (c *MultiChoice) Update(key string) {
 	case "enter":
 		c.Flip()
 	}
+}
+
+func (c *MultiChoice) Render(faint bool) string {
+	return ""
 }

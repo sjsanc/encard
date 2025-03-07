@@ -10,6 +10,11 @@ import (
 )
 
 func DoRootAction(ctx context.Context, cmd *cli.Command) error {
+	opts := &Opts{
+		shuffled: cmd.Bool("shuffle"),
+		verbose:  cmd.Bool("verbose"),
+	}
+
 	cfg, err := NewConfig(cmd.String("config"))
 	if err != nil {
 		return fmt.Errorf("%w", err)
@@ -22,18 +27,13 @@ func DoRootAction(ctx context.Context, cmd *cli.Command) error {
 		globs[i] = glob.MustCompile(arg)
 	}
 
-	cards, err := LoadCards(cfg.CardsDir, globs)
+	cards, err := LoadCards(cfg.CardsDir, globs, opts.verbose)
 	if err != nil {
 		return fmt.Errorf("%w", err)
 	}
 
 	if len(cards) == 0 {
 		return fmt.Errorf("no cards found")
-	}
-
-	opts := &Opts{
-		shuffled: cmd.Bool("shuffle"),
-		verbose:  cmd.Bool("verbose"),
 	}
 
 	session := NewSession(cards, opts)
@@ -44,5 +44,32 @@ func DoRootAction(ctx context.Context, cmd *cli.Command) error {
 	if _, err := program.Run(); err != nil {
 		return err
 	}
+	return nil
+}
+
+func DoVerifyAction(ctx context.Context, cmd *cli.Command) error {
+	cfg, err := NewConfig(cmd.String("config"))
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	args := cmd.Args().Slice()
+
+	globs := make([]glob.Glob, len(args))
+	for i, arg := range args {
+		globs[i] = glob.MustCompile(arg)
+	}
+
+	cards, err := LoadCards(cfg.CardsDir, globs, true)
+	if err != nil {
+		return fmt.Errorf("%w", err)
+	}
+
+	if len(cards) == 0 {
+		return fmt.Errorf("no cards found")
+	}
+
+	fmt.Printf("loaded %d cards\n", len(cards))
+
 	return nil
 }

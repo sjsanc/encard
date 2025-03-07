@@ -33,27 +33,27 @@ func TestLoadConfigFromFile(t *testing.T) {
 	}{
 		{
 			name:           "config file does not exist",
-			cfgPath:        "testdata/missing.ini",
+			cfgPath:        "testdata/config/missing.ini",
 			expectCardsDir: DefaultCardsDir,
 			expectLogsDir:  DefaultLogsDir,
 			expectErr:      true,
 		},
 		{
 			name:           "config file is a directory",
-			cfgPath:        "testdata",
+			cfgPath:        "testdata/config",
 			expectCardsDir: DefaultCardsDir,
 			expectLogsDir:  DefaultLogsDir,
 			expectErr:      true,
 		},
 		{
 			name:           "custom cards directory",
-			cfgPath:        "testdata/partial.ini",
+			cfgPath:        "testdata/config/partial.ini",
 			expectCardsDir: "/tmp/encard/cards",
 			expectLogsDir:  DefaultLogsDir,
 		},
 		{
 			name:           "custom cards and logs directories",
-			cfgPath:        "testdata/config.ini",
+			cfgPath:        "testdata/config/config.ini",
 			expectCardsDir: "/tmp/encard/cards",
 			expectLogsDir:  "/tmp/encard/logs",
 		},

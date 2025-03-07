@@ -1,9 +1,14 @@
 package defs
 
+import (
+	"slices"
+	"strings"
+
+	s "github.com/sjsanc/encard/internal/styles"
+)
+
 type MultiAnswer struct {
 	Base
-	Deck     string
-	Front    string
 	Choices  []string
 	Answers  []int
 	Selected []int
@@ -12,8 +17,10 @@ type MultiAnswer struct {
 
 func NewMultiAnswer(deck string, front string, choices []string, answers []int) *MultiAnswer {
 	return &MultiAnswer{
-		Deck:     deck,
-		Front:    front,
+		Base: Base{
+			deck:  deck,
+			front: front,
+		},
 		Choices:  choices,
 		Answers:  answers,
 		Selected: make([]int, 0),
@@ -43,4 +50,45 @@ func (c *MultiAnswer) Update(key string) {
 	case "enter":
 		c.Flip()
 	}
+}
+
+func (c *MultiAnswer) Render(faint bool) string {
+	sb := strings.Builder{}
+	sb.WriteString(s.Question.Faint(faint).Render(c.front) + "\n")
+
+	for i, choice := range c.Choices {
+		if c.flipped {
+			// Selected + Correct
+			if slices.Contains(c.Selected, i) && slices.Contains(c.Answers, i) {
+				sb.WriteString(s.Correct.Faint(faint).Render("[x] "+choice+" (correct!)") + "\n")
+			}
+
+			// Selected + Incorrect
+			if slices.Contains(c.Selected, i) && !slices.Contains(c.Answers, i) {
+				sb.WriteString(s.Incorrect.Faint(faint).Render("[x] "+choice+" (incorrect!)") + "\n")
+			}
+
+			// Not Selected + Correct
+			if !slices.Contains(c.Selected, i) && slices.Contains(c.Answers, i) {
+				sb.WriteString(s.IncorrectUnselected.Faint(faint).Render("[ ] "+choice+" (answer)") + "\n")
+			}
+
+			// Not Selected + Incorrect
+			if !slices.Contains(c.Selected, i) && !slices.Contains(c.Answers, i) {
+				sb.WriteString(s.Base.Faint(faint).Render("[ ] " + choice + "\n"))
+			}
+		} else {
+			if slices.Contains(c.Selected, i) && c.Current == i {
+				sb.WriteString(s.Selected.Faint(faint).Render("[x] "+choice) + "\n")
+			} else if slices.Contains(c.Selected, i) {
+				sb.WriteString(s.Selected.Faint(faint).Render("[x] "+choice) + "\n")
+			} else if c.Current == i {
+				sb.WriteString(s.Selected.Faint(faint).Render("[ ] "+choice) + "\n")
+			} else {
+				sb.WriteString(s.Base.Faint(faint).Render("[ ] " + choice + "\n"))
+			}
+		}
+	}
+
+	return sb.String()
 }

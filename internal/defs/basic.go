@@ -1,17 +1,23 @@
 package defs
 
+import (
+	"strings"
+
+	s "github.com/sjsanc/encard/internal/styles"
+)
+
 type Basic struct {
 	Base
-	Deck  string
-	Front string
-	Back  string
+	back string
 }
 
 func NewBasic(deck string, front string, back string) *Basic {
 	return &Basic{
-		Deck:  deck,
-		Front: front,
-		Back:  back,
+		Base: Base{
+			deck:  deck,
+			front: front,
+		},
+		back: back,
 	}
 }
 
@@ -20,4 +26,15 @@ func (c *Basic) Update(key string) {
 	case "enter":
 		c.Flip()
 	}
+}
+
+func (c *Basic) Render(faint bool) string {
+	sb := strings.Builder{}
+	sb.WriteString(s.Question.Faint(faint).Render(c.front) + "\n")
+
+	if c.flipped {
+		sb.WriteString(s.Base.Faint(faint).Render(c.back))
+	}
+
+	return sb.String()
 }

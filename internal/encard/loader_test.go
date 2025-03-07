@@ -54,7 +54,7 @@ func TestLoadCards(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cards, err := LoadCards(tt.path, tt.globs)
+			cards, err := LoadCards(tt.path, tt.globs, false)
 
 			if tt.expectErr {
 				if err == nil {
@@ -91,7 +91,7 @@ func BenchmarkLoadCards(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = LoadCards(tmp, nil)
+		_, _ = LoadCards(tmp, nil, false)
 	}
 }
 

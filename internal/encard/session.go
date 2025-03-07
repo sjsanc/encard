@@ -2,6 +2,7 @@ package encard
 
 import (
 	"math/rand/v2"
+	"slices"
 
 	"github.com/sjsanc/encard/internal/defs"
 )
@@ -9,6 +10,7 @@ import (
 // A Session contains the loaded cards and the current card being displayed
 type Session struct {
 	cards    []defs.Card
+	decks    []string
 	current  int
 	finished bool // Whether the session is finished
 	opts     *Opts
@@ -36,9 +38,19 @@ func NewSession(cards []defs.Card, opts *Opts) *Session {
 		shuffle(cards)
 	}
 
+	decks := make(map[string]bool)
+	for _, card := range cards {
+		decks[card.Deck()] = true
+	}
+	keys := make([]string, 0, len(decks))
+	for k := range decks {
+		keys = append(keys, k)
+	}
+
 	return &Session{
 		cards: cards,
 		opts:  opts,
+		decks: keys,
 	}
 }
 
@@ -69,6 +81,20 @@ func (s *Session) NextCard() {
 		return
 	}
 	s.current++
+}
+
+func (s *Session) PrevCard() {
+	if s.current == 0 {
+		return
+	}
+	s.current--
+}
+
+func (s *Session) History() []defs.Card {
+	c := make([]defs.Card, s.current)
+	copy(c, s.cards[:s.current])
+	slices.Reverse(c)
+	return c
 }
 
 func shuffle(cards []defs.Card) {

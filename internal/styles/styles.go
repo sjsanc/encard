@@ -6,6 +6,7 @@ import (
 
 var ns = lg.NewStyle()
 
+var Base = ns
 var Question = ns.Foreground(lg.Color("#A855F7")).Bold(true)
 
 var Selected = ns.Foreground(lg.Color("#39BAE6"))

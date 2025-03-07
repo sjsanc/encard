@@ -14,7 +14,7 @@ import (
 )
 
 // `LoadCards` recursively loads globbed cards from a given root path.
-func LoadCards(root string, globs []glob.Glob) ([]defs.Card, error) {
+func LoadCards(root string, globs []glob.Glob, verbose bool) ([]defs.Card, error) {
 	if root == "" {
 		return nil, fmt.Errorf("invalid root path")
 	}
@@ -38,7 +38,11 @@ func LoadCards(root string, globs []glob.Glob) ([]defs.Card, error) {
 		if !matched {
 			return nil
 		}
-		deck := strings.TrimPrefix(filepath.ToSlash(strings.TrimSuffix(path, filepath.Ext(path))), root)
+
+		fmt.Printf("loading %s\n", path)
+
+		deck := strings.TrimPrefix(filepath.ToSlash(strings.TrimSuffix(path, filepath.Ext(path))), root+"/")
+
 		data, err := os.ReadFile(path)
 		if err != nil {
 			log.Printf("error reading file %s: %v\n", path, err)
@@ -50,6 +54,13 @@ func LoadCards(root string, globs []glob.Glob) ([]defs.Card, error) {
 			return nil
 		}
 		cards = append(cards, parsed...)
+
+		for _, c := range parsed {
+			if verbose {
+				log.Println("loaded: ", c.Front())
+			}
+		}
+
 		return nil
 	})
 

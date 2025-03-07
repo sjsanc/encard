@@ -11,22 +11,39 @@ import (
 
 func run(args []string) error {
 	cmd := &cli.Command{
-		Name:      "encard",
-		Usage:     "start the CLI",
-		ArgsUsage: "[path/to/deck]",
-		Flags: []cli.Flag{
-			&cli.BoolFlag{
-				Name:    "shuffle",
-				Aliases: []string{"s"},
-				Usage:   "Shuffle the cards before starting",
+		Commands: []*cli.Command{
+			{
+				Name:      "run",
+				Usage:     "start the CLI",
+				ArgsUsage: "[path/to/deck]",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "shuffle",
+						Aliases: []string{"s"},
+						Usage:   "Shuffle the cards before starting",
+					},
+					&cli.BoolFlag{
+						Name:    "verbose",
+						Aliases: []string{"v"},
+						Usage:   "Print verbose output",
+					},
+				},
+				Action: encard.DoRootAction,
 			},
-			&cli.BoolFlag{
-				Name:    "verbose",
-				Aliases: []string{"v"},
-				Usage:   "Print verbose output",
+			{
+				Name:      "verify",
+				Usage:     "verify the parsed cards",
+				ArgsUsage: "[path/to/deck]",
+				Flags: []cli.Flag{
+					&cli.BoolFlag{
+						Name:    "verbose",
+						Aliases: []string{"v"},
+						Usage:   "Print verbose output",
+					},
+				},
+				Action: encard.DoVerifyAction,
 			},
 		},
-		Action: encard.DoRootAction,
 	}
 
 	return cmd.Run(context.Background(), args)
