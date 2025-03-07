@@ -35,7 +35,7 @@ func NewSession(cards []defs.Card, opts *Opts) *Session {
 
 	if opts.shuffled {
 		logger.Println("shuffling cards")
-		shuffle(cards)
+		cards = shuffle(cards)
 	}
 
 	decks := make(map[string]bool)
@@ -97,9 +97,11 @@ func (s *Session) History() []defs.Card {
 	return c
 }
 
-func shuffle(cards []defs.Card) {
+func shuffle(cards []defs.Card) []defs.Card {
+	shuffled := make([]defs.Card, len(cards))
 	perm := rand.Perm(len(cards))
 	for i, v := range perm {
-		cards[i] = cards[v]
+		shuffled[v] = cards[i]
 	}
+	return shuffled
 }

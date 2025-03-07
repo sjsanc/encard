@@ -1,5 +1,11 @@
 package defs
 
+import (
+	"strings"
+
+	"github.com/sjsanc/encard/internal/styles"
+)
+
 type MultiChoice struct {
 	Base
 	Choices []string
@@ -30,5 +36,36 @@ func (c *MultiChoice) Update(key string) {
 }
 
 func (c *MultiChoice) Render(faint bool) string {
-	return ""
+	sb := strings.Builder{}
+	sb.WriteString(styles.Question.Faint(faint).Render(c.front) + "\n")
+
+	for i, choice := range c.Choices {
+		if c.flipped {
+			if c.Current == i && c.Answer == i {
+				sb.WriteString(styles.Correct.Faint(faint).Render("* "+choice+" (correct!)") + "\n")
+			}
+
+			if c.Current == i && c.Answer != i {
+				sb.WriteString(styles.Incorrect.Faint(faint).Render("* "+choice+" (incorrect!)") + "\n")
+			}
+
+			if c.Current != i && c.Answer == i {
+				sb.WriteString(styles.IncorrectUnselected.Faint(faint).Render("- "+choice+" (answer)") + "\n")
+			}
+
+			if c.Current != i && c.Answer != i {
+				sb.WriteString("- " + choice + "\n")
+			}
+
+		} else {
+
+			if c.Current == i {
+				sb.WriteString(styles.Selected.Faint(faint).Render("* "+choice) + "\n")
+			} else {
+				sb.WriteString("- " + choice + "\n")
+			}
+		}
+	}
+
+	return sb.String()
 }

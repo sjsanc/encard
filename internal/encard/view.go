@@ -2,14 +2,20 @@ package encard
 
 import (
 	lg "github.com/charmbracelet/lipgloss"
+	"github.com/sjsanc/encard/internal/styles"
 )
 
 var ns = lg.NewStyle()
 
 func (m *Model) renderLeft(w int) string {
-	line := ns.Width(w).Padding(0, 2).Align(lg.Right)
+	base := ns.Width(w).Padding(0, 2).Align(lg.Right)
 
-	decks := make([]string, 0, len(m.session.decks))
+	lines := make([]string, 0, len(m.session.decks))
+
+	if m.session.opts.shuffled {
+		lines = append(lines, base.Inherit(styles.Selected).Bold(true).Render("shuffled"))
+	}
+
 	for _, deck := range m.session.decks {
 		current := false
 		if deck == m.session.CurrentCard().Deck() {
@@ -19,12 +25,12 @@ func (m *Model) renderLeft(w int) string {
 		if current {
 			prefix = "> "
 		}
-		decks = append(decks, line.Faint(!current).Render(prefix+deck))
+		lines = append(lines, base.Faint(!current).Render(prefix+deck))
 	}
 
 	return lg.JoinVertical(
 		lg.Top,
-		decks...,
+		lines...,
 	)
 }
 

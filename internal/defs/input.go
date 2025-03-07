@@ -2,6 +2,7 @@ package defs
 
 import (
 	"math"
+	"strings"
 
 	"github.com/agnivade/levenshtein"
 	s "github.com/sjsanc/encard/internal/styles"
@@ -41,16 +42,19 @@ func (c *Input) Update(key string) {
 }
 
 func (c *Input) Render(faint bool) string {
-	sb := s.Question.Faint(faint).Render(c.front) + "\n"
+	sb := strings.Builder{}
+	sb.WriteString(s.Question.Faint(faint).Render(c.front) + "\n")
 
 	if c.flipped {
+		sb.WriteString(s.Base.Render(c.input) + "\n")
 		if c.matched {
-			sb += s.Correct.Faint(faint).Render(c.input) + "\n"
+			sb.WriteString(s.Correct.Render(c.answer) + "\n")
 		} else {
-			sb += s.Incorrect.Faint(faint).Render(c.input) + "\n"
+			sb.WriteString(s.Incorrect.Render(c.answer) + "\n")
 		}
-		sb += s.Selected.Faint(faint).Render(c.answer) + "\n"
+	} else {
+		sb.WriteString(s.Base.Render(c.input) + "\n")
 	}
 
-	return sb
+	return sb.String()
 }

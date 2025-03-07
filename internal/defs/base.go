@@ -1,7 +1,6 @@
 package defs
 
 type Card interface {
-	Variant() string          // type of card
 	Deck() string             // deck name
 	Front() string            // front of card (i.e question)
 	Flipped() bool            // whether the card has been flipped
@@ -11,14 +10,9 @@ type Card interface {
 }
 
 type Base struct {
-	variant string
 	deck    string
 	front   string
 	flipped bool
-}
-
-func (b *Base) Variant() string {
-	return b.variant
 }
 
 func (b *Base) Deck() string {

@@ -25,7 +25,9 @@ func LoadCards(root string, globs []glob.Glob, verbose bool) ([]defs.Card, error
 		if err != nil || d.IsDir() {
 			return nil
 		}
+
 		var matched bool
+
 		if len(globs) == 0 {
 			matched = true
 		} else {
@@ -35,11 +37,17 @@ func LoadCards(root string, globs []glob.Glob, verbose bool) ([]defs.Card, error
 				}
 			}
 		}
+
 		if !matched {
+			if verbose {
+				log.Printf("skipping %s\n", path)
+			}
 			return nil
 		}
 
-		fmt.Printf("loading %s\n", path)
+		if verbose {
+			log.Printf("loading %s\n", path)
+		}
 
 		deck := strings.TrimPrefix(filepath.ToSlash(strings.TrimSuffix(path, filepath.Ext(path))), root+"/")
 

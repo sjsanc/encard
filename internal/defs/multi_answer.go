@@ -33,7 +33,7 @@ func (c *MultiAnswer) Update(key string) {
 		c.Current = (c.Current - 1 + len(c.Choices)) % len(c.Choices)
 	case "down":
 		c.Current = (c.Current + 1) % len(c.Choices)
-	case "space":
+	case " ":
 		// Toggle selection of the current choice
 		index := -1
 		for i, choice := range c.Selected {
@@ -75,7 +75,7 @@ func (c *MultiAnswer) Render(faint bool) string {
 
 			// Not Selected + Incorrect
 			if !slices.Contains(c.Selected, i) && !slices.Contains(c.Answers, i) {
-				sb.WriteString(s.Base.Faint(faint).Render("[ ] " + choice + "\n"))
+				sb.WriteString(s.Base.Faint(faint).Render("[ ] "+choice) + "\n")
 			}
 		} else {
 			if slices.Contains(c.Selected, i) && c.Current == i {
@@ -85,7 +85,7 @@ func (c *MultiAnswer) Render(faint bool) string {
 			} else if c.Current == i {
 				sb.WriteString(s.Selected.Faint(faint).Render("[ ] "+choice) + "\n")
 			} else {
-				sb.WriteString(s.Base.Faint(faint).Render("[ ] " + choice + "\n"))
+				sb.WriteString(s.Base.Faint(faint).Render("[ ] "+choice) + "\n")
 			}
 		}
 	}
