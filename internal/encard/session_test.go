@@ -7,16 +7,17 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func assertLoader(t *testing.T, c []defs.Card, e error) {
-	assert.Nil(t, e)
+func assertLoader(t *testing.T, c []defs.Card, errors []error) {
+	assert.Empty(t, errors)
 	assert.Equal(t, 2, len(c))
 }
 
 func TestSession_Basic(t *testing.T) {
-	cards, err := LoadCards("testdata/session/basic.md", nil, false)
+	cfg := &Config{CardsDir: "testdata/session"}
+	cards, err := LoadCards([]string{"basic.md"}, cfg)
 	assertLoader(t, cards, err)
 
-	session := NewSession(cards, &Opts{})
+	session := NewSession(cards, &Options{})
 
 	session.Update("enter") // flip
 	assert.True(t, session.CurrentCard().Flipped())
@@ -34,10 +35,11 @@ func TestSession_Basic(t *testing.T) {
 }
 
 func TestSession_MultiAnswer(t *testing.T) {
-	cards, err := LoadCards("testdata/session/multianswer.md", nil, false)
+	cfg := &Config{CardsDir: "testdata/session"}
+	cards, err := LoadCards([]string{"multianswer.md"}, cfg)
 	assertLoader(t, cards, err)
 
-	session := NewSession(cards, &Opts{})
+	session := NewSession(cards, &Options{})
 
 	session.Update(" ") // select
 	card := session.CurrentCard().(*defs.MultiAnswer)
@@ -86,11 +88,12 @@ func TestSession_MultiAnswer(t *testing.T) {
 }
 
 func TestSession_MultiChoice(t *testing.T) {
-	cards, err := LoadCards("testdata/session/multichoice.md", nil, false)
+	cfg := &Config{CardsDir: "testdata/session"}
+	cards, err := LoadCards([]string{"testdata/session/multichoice.md"}, cfg)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(cards))
 
-	session := NewSession(cards, &Opts{})
+	session := NewSession(cards, &Options{})
 
 	assert.False(t, session.CurrentCard().Flipped())
 

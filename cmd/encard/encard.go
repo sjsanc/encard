@@ -28,7 +28,7 @@ func run(args []string) error {
 						Usage:   "Print verbose output",
 					},
 				},
-				Action: encard.DoRootAction,
+				Action: encard.Run,
 			},
 			{
 				Name:      "verify",
@@ -41,7 +41,7 @@ func run(args []string) error {
 						Usage:   "Print verbose output",
 					},
 				},
-				Action: encard.DoVerifyAction,
+				Action: encard.Verify,
 			},
 		},
 	}

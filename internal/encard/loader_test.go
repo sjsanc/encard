@@ -4,69 +4,64 @@ import (
 	"fmt"
 	"os"
 	"testing"
-
-	"github.com/gobwas/glob"
 )
 
 func TestLoadCards(t *testing.T) {
 	tests := []struct {
-		name      string
-		path      string
-		globs     []glob.Glob
-		expectLen int
-		expectErr bool
+		name   string
+		paths  []string
+		cfg    string
+		count  int
+		errors []error
 	}{
 		{
-			name:      "invalid path",
-			path:      "",
-			expectErr: true,
+			name:   "empty path",
+			paths:  []string{""},
+			errors: []error{ErrInvalidPath},
 		},
 		{
-			name:      "valid path and no globs matches everything",
-			path:      "testdata/loader",
-			expectLen: 9,
+			name:   "invalid path",
+			paths:  []string{"invalid"},
+			errors: []error{ErrInvalidPath},
 		},
 		{
-			name:      "load all .md files",
-			path:      "testdata/loader",
-			globs:     []glob.Glob{glob.MustCompile("*.md")},
-			expectLen: 9,
+			name:   "valid absolute path that doesn't exist",
+			paths:  []string{"testdata/loader/invalid"},
+			errors: []error{ErrInvalidPath},
 		},
 		{
-			name:      "only load files that match",
-			path:      "testdata/loader",
-			globs:     []glob.Glob{glob.MustCompile("*/one.md")},
-			expectLen: 6,
+			name:  "valid absolute path with 3 cards",
+			paths: []string{"testdata/loader/one.md"},
+			count: 3,
 		},
 		{
-			name:      "only folders that match",
-			path:      "testdata/loader",
-			globs:     []glob.Glob{glob.MustCompile("*/nested/*")},
-			expectLen: 3,
+			name:  "valid absolute path with 2 valid cards and 1 invalid card",
+			paths: []string{"testdata/loader/partial.md"},
+			count: 2,
 		},
 		{
-			name:      "load an empty file",
-			path:      "testdata/loader",
-			globs:     []glob.Glob{glob.MustCompile("*/empty.md")},
-			expectLen: 0,
+			name:  "valid relative path with 3 cards",
+			paths: []string{"one.md"},
+			cfg:   "testdata/loader/config.ini",
+			count: 3,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cards, err := LoadCards(tt.path, tt.globs, false)
-
-			if tt.expectErr {
-				if err == nil {
-					t.Errorf("expected error, got nil")
-				}
-				return
+			cfg, err := NewConfig(tt.cfg)
+			if err != nil {
+				t.Fatalf("error loading config: %v", err)
 			}
 
-			len := len(cards)
+			cards, errors := LoadCards(tt.paths, cfg)
 
-			if tt.expectLen != len {
-				t.Errorf("expected %d cards, got %d", tt.expectLen, len)
+			if len(tt.errors) != len(errors) {
+				t.Errorf("expected %d errors, got %d", len(tt.errors), len(errors))
+			}
+
+			if tt.count != len(cards) {
+				t.Errorf("expected %d cards, got %d", tt.count, len(cards))
 			}
 		})
 	}
@@ -91,7 +86,8 @@ func BenchmarkLoadCards(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		_, _ = LoadCards(tmp, nil, false)
+		cfg, _ := NewConfig("")
+		_, _ = LoadCards([]string{tmp}, cfg)
 	}
 }
 

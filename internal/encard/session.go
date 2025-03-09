@@ -13,28 +13,13 @@ type Session struct {
 	decks    []string
 	current  int
 	finished bool
-	opts     *Opts
+	opts     *Options
 }
 
-type Opts struct {
-	shuffled bool
-	verbose  bool
-}
-
-var logger *Logger
-
-func NewSession(cards []defs.Card, opts *Opts) *Session {
-	if opts.verbose {
-		logger = NewLogger(true)
-		logger.Printf("verbose logging enabled")
-	} else {
-		logger = NewLogger(false)
-	}
-
-	logger.Printf("%d cards loaded", len(cards))
+func NewSession(cards []defs.Card, opts *Options) *Session {
+	logger.Printf("%d cards loaded\n", len(cards))
 
 	if opts.shuffled {
-		logger.Println("shuffling cards")
 		cards = shuffle(cards)
 	}
 
@@ -110,5 +95,6 @@ func shuffle(cards []defs.Card) []defs.Card {
 	for i, v := range perm {
 		shuffled[v] = cards[i]
 	}
+	logger.Println("shuffling cards")
 	return shuffled
 }

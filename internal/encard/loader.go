@@ -3,78 +3,82 @@ package encard
 import (
 	"fmt"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/gobwas/glob"
 	"github.com/sjsanc/encard/internal/defs"
 	"github.com/sjsanc/encard/internal/parsers"
 )
 
-// `LoadCards` recursively loads globbed cards from a given root path.
-func LoadCards(root string, globs []glob.Glob, verbose bool) ([]defs.Card, error) {
-	if root == "" {
-		return nil, fmt.Errorf("invalid root path")
-	}
+var ErrInvalidPath = fmt.Errorf("file does not exist")
 
+// LoadCards handles loading cards from different path types
+func LoadCards(paths []string, cfg *Config) ([]defs.Card, []error) {
+	var errors []error
 	var cards []defs.Card
 
-	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-		if err != nil || d.IsDir() {
-			return nil
+	for _, path := range paths {
+		targetPath := path
+		if !filepath.IsAbs(path) {
+			targetPath = filepath.Join(cfg.CardsDir, path)
 		}
 
-		var matched bool
+		info, err := os.Stat(targetPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				errors = append(errors, fmt.Errorf("%w: %s", ErrInvalidPath, targetPath))
+			} else {
+				errors = append(errors, fmt.Errorf("error reading file %s: %v", targetPath, err))
+			}
+			continue
+		}
 
-		if len(globs) == 0 {
-			matched = true
-		} else {
-			for _, g := range globs {
-				if g.Match(path) {
-					matched = true
+		if info.IsDir() {
+			filepath.WalkDir(targetPath, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					errors = append(errors, fmt.Errorf("error accessing %s: %v", path, err))
+					return nil
 				}
+				if d.IsDir() {
+					return nil
+				}
+				parsed, err := loadFromPath(path)
+				if err != nil {
+					errors = append(errors, fmt.Errorf("error loading file %s: %v", path, err))
+					return nil
+				}
+				cards = append(cards, parsed...)
+				return nil
+			})
+		} else {
+			parsed, err := loadFromPath(targetPath)
+			if err != nil {
+				errors = append(errors, fmt.Errorf("error loading file %s: %v", targetPath, err))
+				continue
 			}
+			cards = append(cards, parsed...)
 		}
-
-		if !matched {
-			if verbose {
-				log.Printf("skipping %s\n", path)
-			}
-			return nil
-		}
-
-		if verbose {
-			log.Printf("loading %s\n", path)
-		}
-
-		deck := strings.TrimPrefix(filepath.ToSlash(strings.TrimSuffix(path, filepath.Ext(path))), root+"/")
-
-		data, err := os.ReadFile(path)
-		if err != nil {
-			log.Printf("error reading file %s: %v\n", path, err)
-			return nil
-		}
-		parsed, err := parsers.ParseMarkdown(string(data), deck)
-		if err != nil {
-			log.Printf("error parsing file %s: %v\n", path, err)
-			return nil
-		}
-		cards = append(cards, parsed...)
-
-		for _, c := range parsed {
-			if verbose {
-				log.Println("loaded: ", c.Front())
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("error walking directory: %w", err)
 	}
 
-	return cards, nil
+	return cards, errors
+}
+
+func loadFromPath(path string) ([]defs.Card, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("error reading file %s: %v", path, err)
+	}
+
+	deckname := extractDeckName(path)
+	parsed, err := parsers.ParseMarkdown(string(data), deckname)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing file %s: %v", path, err)
+	}
+
+	return parsed, nil
+}
+
+func extractDeckName(path string) string {
+	return strings.TrimSuffix(filepath.Base(filepath.Dir(path)), filepath.Ext(path))
 }
