@@ -12,7 +12,7 @@ type Session struct {
 	cards    []defs.Card
 	decks    []string
 	current  int
-	finished bool // Whether the session is finished
+	finished bool
 	opts     *Opts
 }
 

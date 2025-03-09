@@ -39,7 +39,7 @@ func TestSession_MultiAnswer(t *testing.T) {
 
 	session := NewSession(cards, &Opts{})
 
-	session.Update("space") // select
+	session.Update(" ") // select
 	card := session.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, []int{0}, card.Selected)
 
@@ -47,7 +47,7 @@ func TestSession_MultiAnswer(t *testing.T) {
 	card = session.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, 1, card.Current)
 
-	session.Update("space") // select
+	session.Update(" ") // select
 
 	assert.Equal(t, []int{0, 1}, card.Selected)
 
@@ -55,8 +55,8 @@ func TestSession_MultiAnswer(t *testing.T) {
 
 	assert.Equal(t, 2, card.Current)
 
-	session.Update("space") // select
-	session.Update("space") // de-select
+	session.Update(" ") // select
+	session.Update(" ") // de-select
 
 	assert.Equal(t, []int{0, 1}, card.Selected)
 
