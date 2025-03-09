@@ -90,6 +90,13 @@ func (s *Session) PrevCard() {
 	s.current--
 }
 
+func (s *Session) Finished() bool {
+	if s.current == len(s.cards)-1 && s.cards[s.current].Flipped() {
+		return true
+	}
+	return false
+}
+
 func (s *Session) History() []defs.Card {
 	c := make([]defs.Card, s.current)
 	copy(c, s.cards[:s.current])

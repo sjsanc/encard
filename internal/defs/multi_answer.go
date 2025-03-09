@@ -18,8 +18,9 @@ type MultiAnswer struct {
 func NewMultiAnswer(deck string, front string, choices []string, answers []int) *MultiAnswer {
 	return &MultiAnswer{
 		Base: Base{
-			deck:  deck,
-			front: front,
+			variant: "multianswer",
+			deck:    deck,
+			front:   front,
 		},
 		Choices:  choices,
 		Answers:  answers,

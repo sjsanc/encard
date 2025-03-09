@@ -35,13 +35,13 @@ func (m *Model) renderLeft(w int) string {
 }
 
 func (m *Model) renderMid(w int) string {
-	s := ns.Width(w)
+	base := ns.Width(w)
 
 	card := m.session.CurrentCard()
 
 	block := lg.JoinVertical(
 		lg.Top,
-		s.Render(card.Render(false))+"\n",
+		base.Render(card.Render(false))+"\n",
 	)
 
 	history := m.session.History()
@@ -49,9 +49,30 @@ func (m *Model) renderMid(w int) string {
 		block = lg.JoinVertical(
 			lg.Top,
 			block,
-			s.Render(h.Render(true))+"\n",
+			base.Render(h.Render(true))+"\n",
 		)
 	}
+
+	if m.session.Finished() {
+		block = lg.JoinVertical(
+			lg.Top,
+			base.Render("Session finished! Press 'q' to exit."+"\n"),
+			block,
+		)
+	}
+
+	return block
+}
+
+func (m *Model) renderRight(w int) string {
+	base := ns.Width(w).Padding(0, 2).Align(lg.Left)
+
+	card := m.session.CurrentCard()
+
+	block := lg.JoinVertical(
+		lg.Top,
+		base.Faint(true).Render(card.Variant()+" card"),
+	)
 
 	return block
 }
@@ -59,7 +80,7 @@ func (m *Model) renderMid(w int) string {
 func (m *Model) View() string {
 
 	leftW := m.width / 4
-	midW := m.width - leftW
+	midW := m.width - leftW - leftW
 	if midW > 80 {
 		midW = 80
 	}
@@ -68,5 +89,6 @@ func (m *Model) View() string {
 		lg.Top,
 		m.renderLeft(leftW),
 		m.renderMid(midW),
+		m.renderRight(leftW),
 	)
 }

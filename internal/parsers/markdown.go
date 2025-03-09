@@ -92,8 +92,17 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 			continue
 		}
 
+		// Input card
 		if strings.HasPrefix(back[0], ">") {
 			card := defs.NewInput(deck, front, strings.Join(back, "\n"))
+			result = append(result, card)
+			continue
+		}
+
+		// Cloze card
+		if strings.Contains(back[0], "{{") {
+			text := strings.Fields(back[0])
+			card := defs.NewCloze(deck, front, text)
 			result = append(result, card)
 			continue
 		}

@@ -14,8 +14,9 @@ type Basic struct {
 func NewBasic(deck string, front string, back string) *Basic {
 	return &Basic{
 		Base: Base{
-			deck:  deck,
-			front: front,
+			variant: "basic",
+			deck:    deck,
+			front:   front,
 		},
 		back: back,
 	}

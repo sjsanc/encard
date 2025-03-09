@@ -18,8 +18,9 @@ type Input struct {
 func NewInput(deck string, front string, answer string) *Input {
 	return &Input{
 		Base: Base{
-			deck:  deck,
-			front: front,
+			variant: "input",
+			deck:    deck,
+			front:   front,
 		},
 		answer: answer,
 	}

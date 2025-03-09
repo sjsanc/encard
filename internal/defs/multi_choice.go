@@ -16,8 +16,9 @@ type MultiChoice struct {
 func NewMultiChoice(deck string, front string, choices []string, answer int) *MultiChoice {
 	return &MultiChoice{
 		Base: Base{
-			deck:  deck,
-			front: front,
+			variant: "multichoice",
+			deck:    deck,
+			front:   front,
 		},
 		Choices: choices,
 		Answer:  answer,
