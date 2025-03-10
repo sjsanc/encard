@@ -19,7 +19,7 @@ jobs:
           go-version: stable
 
       - name: Install GoReleaser
-        run: go install github.com/goreleaser/goreleaser@latest
+        run: go install github.com/goreleaser/goreleaser/v2@latest
 
       - name: Run GoReleaser
         env:
