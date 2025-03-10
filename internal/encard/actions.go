@@ -3,15 +3,20 @@ package encard
 import (
 	"context"
 	"fmt"
+	"log"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/urfave/cli/v3"
 )
 
 func Run(ctx context.Context, cmd *cli.Command) error {
-	opts := Setup(cmd)
+	opts, err := Setup(cmd)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
+
 	args := cmd.Args().Slice()
-	cards, _ := LoadCards(args, opts.cfg)
+	cards, _ := LoadCards(args, opts.cfg.CardsDir)
 
 	if len(cards) == 0 {
 		return fmt.Errorf("no cards found")
@@ -28,9 +33,12 @@ func Run(ctx context.Context, cmd *cli.Command) error {
 }
 
 func Verify(ctx context.Context, cmd *cli.Command) error {
-	opts := Setup(cmd)
+	opts, err := Setup(cmd)
+	if err != nil {
+		log.Fatalf("%v", err)
+	}
 	args := cmd.Args().Slice()
-	cards, _ := LoadCards(args, opts.cfg)
+	cards, _ := LoadCards(args, opts.cfg.CardsDir)
 
 	if len(cards) == 0 {
 		return fmt.Errorf("no cards found")

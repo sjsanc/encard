@@ -3,6 +3,8 @@ package encard
 import (
 	"log"
 	"os"
+
+	"github.com/sjsanc/encard/internal/styles"
 )
 
 type Logger struct {
@@ -15,6 +17,6 @@ func NewLogger(enabled bool) *Logger {
 		out = nil
 	}
 	return &Logger{
-		Logger: log.New(out, "[encard] ", log.Ltime),
+		Logger: log.New(out, styles.Question.Bold(true).Render("[encard] ")+"» ", 0),
 	}
 }

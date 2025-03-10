@@ -1,7 +1,6 @@
 package parsers
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -13,7 +12,8 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 
 	// strings.Split always returns at least 1 element
 	if chunks[0] == "" {
-		return nil, fmt.Errorf("deck cannot be empty")
+		log.Printf("Parsing error: no cards found in %s\n")
+		return nil, nil
 	}
 
 	var result []defs.Card

@@ -14,7 +14,7 @@ func assertLoader(t *testing.T, c []defs.Card, errors []error) {
 
 func TestSession_Basic(t *testing.T) {
 	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"basic.md"}, cfg)
+	cards, err := LoadCards([]string{"basic.md"}, cfg.CardsDir)
 	assertLoader(t, cards, err)
 
 	session := NewSession(cards, &Options{})
@@ -36,7 +36,7 @@ func TestSession_Basic(t *testing.T) {
 
 func TestSession_MultiAnswer(t *testing.T) {
 	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"multianswer.md"}, cfg)
+	cards, err := LoadCards([]string{"multianswer.md"}, cfg.CardsDir)
 	assertLoader(t, cards, err)
 
 	session := NewSession(cards, &Options{})
@@ -89,7 +89,7 @@ func TestSession_MultiAnswer(t *testing.T) {
 
 func TestSession_MultiChoice(t *testing.T) {
 	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"testdata/session/multichoice.md"}, cfg)
+	cards, err := LoadCards([]string{"testdata/session/multichoice.md"}, cfg.CardsDir)
 	assert.Nil(t, err)
 	assert.Equal(t, 2, len(cards))
 

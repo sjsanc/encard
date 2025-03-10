@@ -3,14 +3,19 @@ package encard
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestLoadCards(t *testing.T) {
+	testdataDir, err := filepath.Abs("testdata")
+	if err != nil {
+		t.Fatalf("failed to resolve testdata directory: %v", err)
+	}
+
 	tests := []struct {
 		name   string
 		paths  []string
-		cfg    string
 		count  int
 		errors []error
 	}{
@@ -26,35 +31,43 @@ func TestLoadCards(t *testing.T) {
 		},
 		{
 			name:   "valid absolute path that doesn't exist",
-			paths:  []string{"testdata/loader/invalid"},
+			paths:  []string{filepath.Join(testdataDir, "loader/missing.md")},
 			errors: []error{ErrInvalidPath},
 		},
 		{
 			name:  "valid absolute path with 3 cards",
-			paths: []string{"testdata/loader/one.md"},
+			paths: []string{filepath.Join(testdataDir, "loader/valid.md")},
 			count: 3,
 		},
 		{
 			name:  "valid absolute path with 2 valid cards and 1 invalid card",
-			paths: []string{"testdata/loader/partial.md"},
+			paths: []string{filepath.Join(testdataDir, "loader/partially_valid.md")},
 			count: 2,
 		},
 		{
+			name:  "valid absolute path to a directory loaded recursively",
+			paths: []string{filepath.Join(testdataDir, "loader")},
+			count: 11,
+		},
+		{
 			name:  "valid relative path with 3 cards",
-			paths: []string{"one.md"},
-			cfg:   "testdata/loader/config.ini",
+			paths: []string{"loader/valid.md"},
 			count: 3,
+		},
+		{
+			name:  "valid relative path with 2 valid cards and 1 invalid card",
+			paths: []string{"loader/partially_valid.md"},
+			count: 2,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg, err := NewConfig(tt.cfg)
-			if err != nil {
-				t.Fatalf("error loading config: %v", err)
-			}
+			cards, errors := LoadCards(tt.paths, testdataDir)
 
-			cards, errors := LoadCards(tt.paths, cfg)
+			for i, err := range errors {
+				fmt.Println(i, err)
+			}
 
 			if len(tt.errors) != len(errors) {
 				t.Errorf("expected %d errors, got %d", len(tt.errors), len(errors))
@@ -86,8 +99,7 @@ func BenchmarkLoadCards(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		cfg, _ := NewConfig("")
-		_, _ = LoadCards([]string{tmp}, cfg)
+		_, _ = LoadCards([]string{tmp}, "")
 	}
 }
 

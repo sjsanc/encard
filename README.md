@@ -19,6 +19,12 @@ Encard is a filesystem-based flashcard TUI. It stores your cards inside regular 
 Vientiane
 ```
 
+### Cloze
+```md
+# Complete the quote
+It always seems {{impossible}} until it's {{done}}
+```
+
 ### Reversible
 Reversible cards are loaded twice, filling in the curly braces.
 ```md

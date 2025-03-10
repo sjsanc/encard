@@ -20,5 +20,5 @@ or whole phrases
 > This is the answer
 ---
 # This is a cloze card
-You must {fill} in the blanks {blanks}
+You must {{fill}} in the blanks {{blanks}}
 ---
