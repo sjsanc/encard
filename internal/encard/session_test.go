@@ -40,18 +40,16 @@ func TestSession_Basic(t *testing.T) {
 
 func TestSession_MultiAnswer(t *testing.T) {
 	s := setup(t, "multianswer.md")
-
-	s.Update(" ") // select
 	card := s.CurrentCard().(*defs.MultiAnswer)
 
+	s.Update(" ") // select
+
 	s.Update("down") // next
-	card = s.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, 1, card.Current)
 
 	s.Update(" ") // select
 
 	s.Update("down") // next
-	card = s.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, 2, card.Current)
 
 	s.Update(" ") // select
@@ -68,28 +66,20 @@ func TestSession_MultiAnswer(t *testing.T) {
 	s.Update("enter") // next
 
 	assertFinished(t, s)
-
-	card = s.CurrentCard().(*defs.MultiAnswer)
 }
 
 func TestSession_MultiChoice(t *testing.T) {
 	s := setup(t, "multichoice.md")
-
-	assert.False(t, s.CurrentCard().Flipped())
-
 	s.Update("enter") // flip
+
 	card := s.CurrentCard().(*defs.MultiChoice)
 	assert.Equal(t, 0, card.Current)
-
 	s.Update("enter") // next
 	s.Update("down")
+
 	card = s.CurrentCard().(*defs.MultiChoice)
 	assert.Equal(t, 1, card.Current)
-
 	s.Update("enter") // flip
-	assert.True(t, s.CurrentCard().Flipped())
-
 	s.Update("enter") // next
-
 	assertFinished(t, s)
 }

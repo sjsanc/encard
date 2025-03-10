@@ -12,7 +12,7 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 
 	// strings.Split always returns at least 1 element
 	if chunks[0] == "" {
-		log.Printf("Parsing error: no cards found in %s\n")
+		log.Printf("Parsing error: no cards found in %s\n", deck)
 		return nil, nil
 	}
 
