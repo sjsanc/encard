@@ -85,10 +85,6 @@ func loadRecursive(path string) ([]defs.Card, error) {
 			return nil
 		}
 
-		if filepath.Ext(entryPath) != ".md" {
-			return nil
-		}
-
 		parsed, err := loadFromPath(entryPath)
 		if err != nil {
 			return fmt.Errorf("error loading file %s: %v", entryPath, err)
@@ -111,9 +107,21 @@ func loadFromPath(path string) ([]defs.Card, error) {
 	}
 
 	deckname := extractDeckName(path)
-	parsed, err := parsers.ParseMarkdown(string(data), deckname)
-	if err != nil {
-		return nil, fmt.Errorf("error parsing file %s: %v", path, err)
+
+	var parsed []defs.Card
+
+	if filepath.Ext(path) == ".md" {
+		parsed, err = parsers.ParseMarkdown(string(data), deckname)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing file %s: %v", path, err)
+		}
+	}
+
+	if filepath.Ext(path) == ".json" {
+		parsed, err = parsers.ParseJson(string(data), deckname)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing file %s: %v", path, err)
+		}
 	}
 
 	logger.Printf("loaded %d cards from %s (%s)", len(parsed), deckname, path)

@@ -56,38 +56,34 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 
 		// Multi-choice card
 		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
-			choices := make([]string, 0)
-			answer := -1
+			choices := make(map[string]bool)
 
-			for i, line := range back {
+			for _, line := range back {
 				if strings.HasPrefix(line, "-") {
-					choices = append(choices, strings.TrimPrefix(line, "- "))
+					choices[strings.TrimPrefix(line, "- ")] = false
 				} else if strings.HasPrefix(line, "*") {
-					choices = append(choices, strings.TrimPrefix(line, "* "))
-					answer = i
+					choices[strings.TrimPrefix(line, "* ")] = true
 				}
 			}
 
-			card := defs.NewMultiChoice(deck, front, choices, answer)
+			card := defs.NewMultiChoice(deck, front, choices)
 			result = append(result, card)
 			continue
 		}
 
 		// Multi-answer card
 		if strings.HasPrefix(back[0], "[*]") || strings.HasPrefix(back[0], "[ ]") {
-			choices := make([]string, 0)
-			answers := make([]int, 0)
+			choices := make(map[string]bool)
 
-			for i, line := range back {
+			for _, line := range back {
 				if strings.HasPrefix(line, "[*]") {
-					choices = append(choices, strings.TrimPrefix(line, "[*] "))
-					answers = append(answers, i)
+					choices[strings.TrimPrefix(line, "[*] ")] = true
 				} else if strings.HasPrefix(line, "[ ]") {
-					choices = append(choices, strings.TrimPrefix(line, "[ ] "))
+					choices[strings.TrimPrefix(line, "[ ] ")] = false
 				}
 			}
 
-			card := defs.NewMultiAnswer(deck, front, choices, answers)
+			card := defs.NewMultiAnswer(deck, front, choices)
 			result = append(result, card)
 			continue
 		}

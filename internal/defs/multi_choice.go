@@ -6,14 +6,23 @@ import (
 	"github.com/sjsanc/encard/internal/styles"
 )
 
+type Choice struct {
+	Text    string
+	Correct bool
+}
+
 type MultiChoice struct {
 	Base
-	Choices []string
-	Answer  int
+	Choices []Choice
 	Current int
 }
 
-func NewMultiChoice(deck string, front string, choices []string, answer int) *MultiChoice {
+func NewMultiChoice(deck string, front string, choiceDefs map[string]bool) *MultiChoice {
+	choices := make([]Choice, 0, len(choiceDefs))
+	for choice, correct := range choiceDefs {
+		choices = append(choices, Choice{Text: choice, Correct: correct})
+	}
+
 	return &MultiChoice{
 		Base: Base{
 			variant: "multichoice",
@@ -21,7 +30,6 @@ func NewMultiChoice(deck string, front string, choices []string, answer int) *Mu
 			front:   front,
 		},
 		Choices: choices,
-		Answer:  answer,
 	}
 }
 
@@ -42,28 +50,20 @@ func (c *MultiChoice) Render(faint bool) string {
 
 	for i, choice := range c.Choices {
 		if c.flipped {
-			if c.Current == i && c.Answer == i {
-				sb.WriteString(styles.Correct.Faint(faint).Render("* "+choice+" (correct!)") + "\n")
-			}
-
-			if c.Current == i && c.Answer != i {
-				sb.WriteString(styles.Incorrect.Faint(faint).Render("* "+choice+" (incorrect!)") + "\n")
-			}
-
-			if c.Current != i && c.Answer == i {
-				sb.WriteString(styles.IncorrectUnselected.Faint(faint).Render("- "+choice+" (answer)") + "\n")
-			}
-
-			if c.Current != i && c.Answer != i {
-				sb.WriteString("- " + choice + "\n")
-			}
-
-		} else {
-
-			if c.Current == i {
-				sb.WriteString(styles.Selected.Faint(faint).Render("* "+choice) + "\n")
+			if c.Current == i && choice.Correct {
+				sb.WriteString(styles.Correct.Faint(faint).Render("* "+choice.Text+" (correct!)") + "\n")
+			} else if c.Current == i && !choice.Correct {
+				sb.WriteString(styles.Incorrect.Faint(faint).Render("* "+choice.Text+" (incorrect!)") + "\n")
+			} else if c.Current != i && choice.Correct {
+				sb.WriteString(styles.IncorrectUnselected.Faint(faint).Render("- "+choice.Text+" (answer)") + "\n")
 			} else {
-				sb.WriteString("- " + choice + "\n")
+				sb.WriteString("- " + choice.Text + "\n")
+			}
+		} else {
+			if c.Current == i {
+				sb.WriteString(styles.Selected.Faint(faint).Render("* "+choice.Text) + "\n")
+			} else {
+				sb.WriteString("- " + choice.Text + "\n")
 			}
 		}
 	}

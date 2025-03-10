@@ -1,0 +1,34 @@
+[
+    {
+        "front": "basic question",
+        "back": "answer"
+    },
+    {
+        "front": "cloze question",
+        "type": "cloze",
+        "back": "answer with {{cloze}}"
+    },
+    {
+        "front": "input question",
+        "type": "input",
+        "back": "answer"
+    },
+    {
+        "front": "multianswer question",
+        "type": "multianswer", 
+        "answers": {
+            "answer1": false,
+            "answer2": true,
+            "answer3": true
+        }
+    },
+    {
+        "front": "multichoice question",
+        "type": "multichoice",
+        "choices": {
+            "choice1": false,
+            "choice2": true,
+            "choice3": false
+        }
+    }
+]
