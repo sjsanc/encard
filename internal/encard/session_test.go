@@ -1,114 +1,101 @@
 package encard
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/sjsanc/encard/internal/defs"
 	"github.com/stretchr/testify/assert"
 )
 
-func assertLoader(t *testing.T, c []defs.Card, errors []error) {
+func setup(t *testing.T, path string) *Session {
+	testdataDir, err := filepath.Abs("testdata/session")
+	if err != nil {
+		t.Fatalf("failed to resolve testdata directory: %v", err)
+	}
+	cards, errors := LoadCards([]string{path}, testdataDir)
 	assert.Empty(t, errors)
-	assert.Equal(t, 2, len(c))
+	assert.Equal(t, 2, len(cards))
+	session := NewSession(cards, &Options{})
+	assert.Equal(t, 0, session.current) // current card index is 0
+	return session
+}
+
+func assertFinished(t *testing.T, session *Session) {
+	assert.True(t, session.finished)
+	assert.Equal(t, 1, session.current)
 }
 
 func TestSession_Basic(t *testing.T) {
-	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"basic.md"}, cfg.CardsDir)
-	assertLoader(t, cards, err)
+	s := setup(t, "basic.md")
 
-	session := NewSession(cards, &Options{})
+	s.Update("enter") // flip
+	s.Update("enter") // next
 
-	session.Update("enter") // flip
-	assert.True(t, session.CurrentCard().Flipped())
+	s.Update("enter") // flip
+	s.Update("enter") // next
 
-	session.Update("enter") // next
-	assert.Equal(t, 1, session.current)
-	assert.False(t, session.CurrentCard().Flipped())
-
-	session.Update("enter") // flip
-	assert.True(t, session.CurrentCard().Flipped())
-
-	session.Update("enter") // next
-	assert.True(t, session.finished)
-	assert.Equal(t, 1, session.current)
+	assertFinished(t, s)
 }
 
 func TestSession_MultiAnswer(t *testing.T) {
-	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"multianswer.md"}, cfg.CardsDir)
-	assertLoader(t, cards, err)
+	s := setup(t, "multianswer.md")
 
-	session := NewSession(cards, &Options{})
-
-	session.Update(" ") // select
-	card := session.CurrentCard().(*defs.MultiAnswer)
+	s.Update(" ") // select
+	card := s.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, []int{0}, card.Selected)
 
-	session.Update("down") // next
-	card = session.CurrentCard().(*defs.MultiAnswer)
+	s.Update("down") // next
+	card = s.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, 1, card.Current)
 
-	session.Update(" ") // select
+	s.Update(" ") // select
 
 	assert.Equal(t, []int{0, 1}, card.Selected)
 
-	session.Update("down") // next
-
+	s.Update("down") // next
+	card = s.CurrentCard().(*defs.MultiAnswer)
 	assert.Equal(t, 2, card.Current)
 
-	session.Update(" ") // select
-	session.Update(" ") // de-select
+	s.Update(" ") // select
+	s.Update(" ") // de-select
 
 	assert.Equal(t, []int{0, 1}, card.Selected)
 
-	session.Update("enter") // flip
+	s.Update("enter") // flip
+	s.Update("enter") // next
 
-	assert.True(t, session.CurrentCard().Flipped())
+	s.Update("down")
+	s.Update("down")
+	s.Update("down")
 
-	session.Update("enter") // next
+	s.Update("enter") // flip
+	s.Update("enter") // next
 
-	assert.False(t, session.CurrentCard().Flipped())
+	assertFinished(t, s)
 
-	session.Update("down")
-	session.Update("down")
-	session.Update("down")
-
-	session.Update("enter") // flip
-
-	assert.True(t, session.CurrentCard().Flipped())
-
-	session.Update("enter") // next
-
-	assert.True(t, session.finished)
-	assert.Equal(t, 1, session.current)
-
-	card = session.CurrentCard().(*defs.MultiAnswer)
+	card = s.CurrentCard().(*defs.MultiAnswer)
 	assert.Empty(t, card.Selected)
 }
 
 func TestSession_MultiChoice(t *testing.T) {
-	cfg := &Config{CardsDir: "testdata/session"}
-	cards, err := LoadCards([]string{"testdata/session/multichoice.md"}, cfg.CardsDir)
-	assert.Nil(t, err)
-	assert.Equal(t, 2, len(cards))
+	s := setup(t, "multichoice.md")
 
-	session := NewSession(cards, &Options{})
+	assert.False(t, s.CurrentCard().Flipped())
 
-	assert.False(t, session.CurrentCard().Flipped())
-
-	session.Update("enter") // flip
-	card := session.CurrentCard().(*defs.MultiChoice)
+	s.Update("enter") // flip
+	card := s.CurrentCard().(*defs.MultiChoice)
 	assert.Equal(t, 0, card.Current)
 
-	session.Update("enter") // next
-	session.Update("down")
-	card = session.CurrentCard().(*defs.MultiChoice)
+	s.Update("enter") // next
+	s.Update("down")
+	card = s.CurrentCard().(*defs.MultiChoice)
 	assert.Equal(t, 1, card.Current)
 
-	session.Update("enter") // flip
-	assert.True(t, session.CurrentCard().Flipped())
+	s.Update("enter") // flip
+	assert.True(t, s.CurrentCard().Flipped())
 
-	session.Update("enter") // next
-	assert.True(t, session.finished)
+	s.Update("enter") // next
+
+	assertFinished(t, s)
 }
