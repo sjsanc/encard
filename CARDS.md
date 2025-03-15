@@ -1,6 +1,10 @@
 # This is a basic card
 This is the reverse
 ---
+# This card has a picture
+Isn't it cute?
+[](./docs/cat.jpg)
+---
 # This card inserts {} into the curly braces
 words
 or whole phrases

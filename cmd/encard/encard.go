@@ -43,6 +43,10 @@ func run(args []string) error {
 				},
 				Action: encard.Verify,
 			},
+			{
+				Name:   "image",
+				Action: encard.ImageTest,
+			},
 		},
 	}
 

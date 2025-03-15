@@ -103,6 +103,12 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 			continue
 		}
 
+		// for _, line := range back {
+		// 	if strings.HasPrefix("[](", line) {
+
+		// 	}
+		// }
+
 		// Basic card
 		card := defs.NewBasic(deck, front, strings.Join(back, "\n"))
 		result = append(result, card)
