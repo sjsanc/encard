@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"log"
-	"os"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/urfave/cli/v3"
@@ -59,35 +57,38 @@ func ImageTest(ctx context.Context, cmd *cli.Command) error {
 }
 
 func RenderPNG(filename string) error {
-	data, err := os.ReadFile(filename)
-	if err != nil {
-		return err
-	}
-	encodedData := base64.StdEncoding.EncodeToString(data)
-	chunkSize := 4096
-	pos := 0
-	var sb strings.Builder
-	for pos < len(encodedData) {
-		sb.WriteString("\x1b_G")
-		if pos == 0 {
-			sb.WriteString("a=T,f=100,")
-		}
-		endPos := pos + chunkSize
-		if endPos > len(encodedData) {
-			endPos = len(encodedData)
-		}
-		chunk := encodedData[pos:endPos]
-		pos = endPos
+	// data, err := os.ReadFile(filename)
+	// if err != nil {
+	// 	return err
+	// }
 
-		if pos < len(encodedData) {
-			sb.WriteString("m=1")
-		}
-		if len(chunk) > 0 {
-			sb.WriteString(";" + chunk)
-		}
-
-		sb.WriteString("\x1b\\")
-	}
-	fmt.Print(sb.String())
+	encodedData := base64.StdEncoding.EncodeToString([]byte(filename))
+	fmt.Printf("\033_Gt=f,q=1,f=100,a=T;%s\033\\", encodedData)
 	return nil
+	// chunkSize := 4096
+	// pos := 0
+	// var sb strings.Builder
+	// for pos < len(encodedData) {
+	// 	sb.WriteString("\x1b_G")
+	// 	if pos == 0 {
+	// 		sb.WriteString("a=T,f=100,")
+	// 	}
+	// 	endPos := pos + chunkSize
+	// 	if endPos > len(encodedData) {
+	// 		endPos = len(encodedData)
+	// 	}
+	// 	chunk := encodedData[pos:endPos]
+	// 	pos = endPos
+
+	// 	if pos < len(encodedData) {
+	// 		sb.WriteString("m=1")
+	// 	}
+	// 	if len(chunk) > 0 {
+	// 		sb.WriteString(";" + chunk)
+	// 	}
+
+	// 	sb.WriteString("\x1b\\")
+	// }
+	// fmt.Print(sb.String())
+	// return nil
 }

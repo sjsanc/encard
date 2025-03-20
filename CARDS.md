@@ -3,7 +3,7 @@ This is the reverse
 ---
 # This card has a picture
 Isn't it cute?
-[](./docs/cat.jpg)
+[](/home/sjsanc/work/encard/pkg/kitty/testdata/png-cat.png)
 ---
 # This card inserts {} into the curly braces
 words

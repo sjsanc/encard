@@ -16,6 +16,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		default:
 			m.session.Update(key)
+
+			// ClearScreen allows kitty image to be cleared
+			// TODO: save the images in cache so that we can apply a "dark" filter to it with Image
+			// Also means we can have relative paths
+			// TODO: add jpeg support (requires more complex flags)
+			return m, tea.ClearScreen
 		}
 	}
 
