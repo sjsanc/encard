@@ -1,4 +1,4 @@
-package image
+package tui
 
 import (
 	"encoding/base64"
@@ -7,6 +7,8 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+
+	"github.com/sjsanc/encard/internal/log"
 )
 
 // TODO: support Kitty flags using structs
@@ -30,6 +32,16 @@ func NewImage(path string) *Image {
 }
 
 func (i *Image) Print() string {
+	info, err := os.Stat(i.path)
+	if info == nil {
+		log.Warn("image not found: %s", i.path)
+		return ""
+	}
+	if err != nil {
+		log.Warn("error reading image: %s", err)
+		return ""
+	}
+
 	if i.ext == ".png" {
 		return i.printPNG()
 	} else if i.ext == ".jpg" {

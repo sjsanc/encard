@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/sjsanc/encard/internal/encard"
+	"github.com/sjsanc/encard/internal/tui"
 	"github.com/urfave/cli/v3"
 )
 
@@ -28,7 +31,29 @@ func run(args []string) error {
 						Usage:   "Print verbose output",
 					},
 				},
-				Action: encard.Run,
+				Action: func(ctx context.Context, c *cli.Command) error {
+					opts, err := encard.Setup(c)
+					if err != nil {
+						log.Fatalf("%v", err)
+					}
+
+					args := c.Args().Slice()
+
+					cards, _ := encard.LoadCards(args, opts.Cfg.CardsDir)
+
+					if len(cards) == 0 {
+						return fmt.Errorf("no cards found")
+					}
+
+					session := encard.NewSession(cards, opts)
+					model := tui.NewModel(session)
+
+					program := tea.NewProgram(model, tea.WithAltScreen())
+					if _, err := program.Run(); err != nil {
+						return err
+					}
+					return nil
+				},
 			},
 			{
 				Name:      "verify",
@@ -41,7 +66,22 @@ func run(args []string) error {
 						Usage:   "Print verbose output",
 					},
 				},
-				Action: encard.Verify,
+				Action: func(ctx context.Context, c *cli.Command) error {
+					opts, err := encard.Setup(c)
+					if err != nil {
+						log.Fatalf("%v", err)
+					}
+					args := c.Args().Slice()
+					cards, _ := encard.LoadCards(args, opts.Cfg.CardsDir)
+
+					if len(cards) == 0 {
+						return fmt.Errorf("no cards found")
+					}
+
+					fmt.Printf("loaded %d cards\n", len(cards))
+
+					return nil
+				},
 			},
 		},
 	}

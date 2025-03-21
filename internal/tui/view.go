@@ -1,8 +1,6 @@
-package encard
+package tui
 
 import (
-	"fmt"
-
 	lg "github.com/charmbracelet/lipgloss"
 	"github.com/sjsanc/encard/internal/styles"
 )
@@ -12,13 +10,13 @@ var ns = lg.NewStyle()
 func (m *Model) renderLeft(w int) string {
 	base := ns.Width(w).Padding(0, 2).Align(lg.Right)
 
-	lines := make([]string, 0, len(m.session.decks))
+	lines := make([]string, 0, len(m.session.DeckNames))
 
-	if m.session.opts.shuffled {
+	if m.session.Opts.Shuffled {
 		lines = append(lines, base.Inherit(styles.Selected).Bold(true).Render("shuffled"))
 	}
 
-	for _, deck := range m.session.decks {
+	for _, deck := range m.session.DeckNames {
 		current := false
 		if deck == m.session.CurrentCard().Deck() {
 			current = true
@@ -43,7 +41,7 @@ func (m *Model) renderMid(w int) string {
 
 	block := lg.JoinVertical(
 		lg.Top,
-		base.Render(card.Render(false))+"\n",
+		base.Render(Display(card, false))+"\n",
 	)
 
 	history := m.session.History()
@@ -51,7 +49,7 @@ func (m *Model) renderMid(w int) string {
 		block = lg.JoinVertical(
 			lg.Top,
 			block,
-			base.Render(h.Render(true))+"\n",
+			base.Render(Display(h, true))+"\n",
 		)
 	}
 
@@ -80,8 +78,6 @@ func (m *Model) renderRight(w int) string {
 }
 
 func (m *Model) View() string {
-
-	fmt.Printf("\033_Ga=d\033\\")
 
 	leftW := m.width / 4
 	midW := m.width - leftW - leftW

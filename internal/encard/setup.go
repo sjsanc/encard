@@ -3,16 +3,15 @@ package encard
 import (
 	"fmt"
 
+	"github.com/sjsanc/encard/internal/log"
 	"github.com/urfave/cli/v3"
 )
 
-var logger = NewLogger(false)
-
 // `Options` contains runtime options.`
 type Options struct {
-	shuffled bool
-	verbose  bool
-	cfg      *Config
+	Cfg      *Config
+	Shuffled bool
+	Verbose  bool
 }
 
 func Setup(cmd *cli.Command) (*Options, error) {
@@ -24,22 +23,22 @@ func Setup(cmd *cli.Command) (*Options, error) {
 	}
 
 	opts := &Options{
-		cfg:      cfg,
-		shuffled: cmd.Bool("shuffle"),
-		verbose:  cmd.Bool("verbose"),
+		Cfg:      cfg,
+		Shuffled: cmd.Bool("shuffle"),
+		Verbose:  cmd.Bool("verbose"),
 	}
 
-	if opts.verbose {
-		logger = NewLogger(true)
+	if opts.Verbose {
+		log.VERBOSE = true
 	}
 
 	if cfgPath != "" {
-		logger.Printf("using configuration from %s", cfgPath)
+		log.Info("using configuration from %s", cfgPath)
 	} else {
-		logger.Printf("using default configuration")
+		log.Info("using default configuration")
 	}
 
-	logger.Printf("using %s as default load path", cfg.CardsDir)
+	log.Info("using %s as default load path", cfg.CardsDir)
 
 	return opts, nil
 }

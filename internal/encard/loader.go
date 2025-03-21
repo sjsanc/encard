@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/sjsanc/encard/internal/defs"
+	"github.com/sjsanc/encard/internal/log"
 	"github.com/sjsanc/encard/internal/parsers"
 )
 
@@ -21,7 +22,7 @@ func LoadCards(paths []string, root string) ([]defs.Card, []error) {
 	var cards []defs.Card
 
 	if len(paths) == 0 {
-		logger.Println("no paths provided, loading all cards from", root)
+		log.Info("no paths provided, loading all cards from %s", root)
 
 		parsed, err := loadRecursive(root)
 		if err != nil {
@@ -45,7 +46,7 @@ func LoadCards(paths []string, root string) ([]defs.Card, []error) {
 			target = filepath.Join(root, path)
 		}
 
-		logger.Println("loading cards from", target)
+		log.Info("loading cards from", target)
 
 		info, err := os.Stat(target)
 		if err != nil {
@@ -128,7 +129,7 @@ func loadFromPath(path string) ([]defs.Card, error) {
 		}
 	}
 
-	logger.Printf("loaded %d cards from %s (%s)", len(parsed), deckname, path)
+	log.Info("loaded %d cards from %s", len(parsed), deckname)
 
 	return parsed, nil
 }

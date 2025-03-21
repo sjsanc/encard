@@ -104,7 +104,7 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 		}
 
 		// Basic card
-		card := defs.NewBasic(deck, front, back)
+		card := defs.NewBasic(deck, front, strings.Join(back, "\n"))
 		result = append(result, card)
 	}
 

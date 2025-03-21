@@ -5,21 +5,23 @@ import (
 	"slices"
 
 	"github.com/sjsanc/encard/internal/defs"
+	"github.com/sjsanc/encard/internal/log"
 )
 
 // A Session contains the loaded cards and the current card being displayed
 type Session struct {
+	DeckNames []string
+	Opts      *Options
+
 	cards    []defs.Card
-	decks    []string
 	current  int
 	finished bool
-	opts     *Options
 }
 
 func NewSession(cards []defs.Card, opts *Options) *Session {
-	logger.Printf("%d cards loaded\n", len(cards))
+	log.Info("%d cards loaded", len(cards))
 
-	if opts.shuffled {
+	if opts.Shuffled {
 		cards = shuffle(cards)
 	}
 
@@ -33,9 +35,9 @@ func NewSession(cards []defs.Card, opts *Options) *Session {
 	}
 
 	return &Session{
-		cards: cards,
-		opts:  opts,
-		decks: keys,
+		cards:     cards,
+		Opts:      opts,
+		DeckNames: keys,
 	}
 }
 
@@ -95,6 +97,6 @@ func shuffle(cards []defs.Card) []defs.Card {
 	for i, v := range perm {
 		shuffled[v] = cards[i]
 	}
-	logger.Println("shuffling cards")
+	log.Info("shuffling cards")
 	return shuffled
 }

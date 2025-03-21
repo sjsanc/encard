@@ -1,19 +1,17 @@
-package encard
+package tui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/sjsanc/encard/internal/defs"
+	"github.com/sjsanc/encard/internal/encard"
 )
-
-type DeckMap map[string][]defs.Card
 
 type Model struct {
 	width   int
 	height  int
-	session *Session
+	session *encard.Session
 }
 
-func NewModel(session *Session) *Model {
+func NewModel(session *encard.Session) *Model {
 	return &Model{
 		session: session,
 	}

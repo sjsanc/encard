@@ -1,13 +1,12 @@
 package defs
 
 type Card interface {
-	Variant() string          // card type
-	Deck() string             // deck name
-	Front() string            // front of card (i.e question)
-	Flipped() bool            // whether the card has been flipped
-	Flip()                    // flip the card
-	Update(key string)        // update the card based on key
-	Render(faint bool) string // render the card as a string
+	Variant() string   // card type
+	Deck() string      // deck name
+	Front() string     // front of card (i.e question)
+	Flipped() bool     // whether the card has been flipped
+	Flip()             // flip the card
+	Update(key string) // update the card based on key
 }
 
 type Base struct {
