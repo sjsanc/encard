@@ -16,6 +16,7 @@ func Run(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	args := cmd.Args().Slice()
+
 	cards, _ := LoadCards(args, opts.cfg.CardsDir)
 
 	if len(cards) == 0 {

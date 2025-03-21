@@ -39,9 +39,13 @@ func LoadCards(paths []string, root string) ([]defs.Card, []error) {
 			continue
 		}
 
-		if !filepath.IsAbs(path) { // i.e. has prefix /
+		if strings.HasPrefix(target, ".") {
+			target, _ = filepath.Abs(path)
+		} else if !filepath.IsAbs(path) { // i.e. has prefix /
 			target = filepath.Join(root, path)
 		}
+
+		logger.Println("loading cards from", target)
 
 		info, err := os.Stat(target)
 		if err != nil {

@@ -1,6 +1,8 @@
 package encard
 
 import (
+	"fmt"
+
 	lg "github.com/charmbracelet/lipgloss"
 	"github.com/sjsanc/encard/internal/styles"
 )
@@ -78,6 +80,8 @@ func (m *Model) renderRight(w int) string {
 }
 
 func (m *Model) View() string {
+
+	fmt.Printf("\033_Ga=d\033\\")
 
 	leftW := m.width / 4
 	midW := m.width - leftW - leftW
