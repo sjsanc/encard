@@ -7,6 +7,12 @@ import (
 	s "github.com/sjsanc/encard/internal/styles"
 )
 
+// When parsing markdown, we want to go through each line.
+// When parsing JSON, we only need to ensure the deserialised object is correct.
+// When rendering Card data, we need to keep track of content width and image heights.
+// In effect, rendering needs to be deoupled from the data structure.
+// Especially important for implementing different rendering methods, such as a Web UI.
+
 type Basic struct {
 	Base
 	back []string
