@@ -1,19 +1,18 @@
 package defs
 
 import (
-	"fmt"
 	"strings"
 
+	"github.com/sjsanc/encard/internal/image"
 	s "github.com/sjsanc/encard/internal/styles"
 )
 
 type Basic struct {
 	Base
-	back string
-	img  string
+	back []string
 }
 
-func NewBasic(deck string, front string, back string, img string) *Basic {
+func NewBasic(deck string, front string, back []string) *Basic {
 	return &Basic{
 		Base: Base{
 			variant: "basic",
@@ -21,7 +20,6 @@ func NewBasic(deck string, front string, back string, img string) *Basic {
 			front:   front,
 		},
 		back: back,
-		img:  img,
 	}
 }
 
@@ -36,13 +34,16 @@ func (c *Basic) Render(faint bool) string {
 	sb := strings.Builder{}
 	sb.WriteString(s.Question.Faint(faint).Render(c.front) + "\n")
 
-	if c.img != "" {
-		sb.WriteString(fmt.Sprintf("\033_Gi=1,t=f,q=1,f=100,a=T;%s\033\\", c.img))
-		sb.WriteString("\n")
-	}
-
 	if c.flipped {
-		sb.WriteString(s.Base.Faint(faint).Render(c.back))
+		for _, line := range c.back {
+			if strings.HasPrefix(line, "[](") {
+				filepath := strings.TrimSuffix(strings.TrimPrefix(line, "[]("), ")")
+				img := image.NewImage(filepath)
+				sb.WriteString(img.Print() + "\n")
+			} else {
+				sb.WriteString(s.Base.Faint(faint).Render(line) + "\n")
+			}
+		}
 	}
 
 	return sb.String()

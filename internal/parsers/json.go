@@ -37,7 +37,7 @@ func ParseJson(data string, deck string) ([]defs.Card, error) {
 		case "multichoice":
 			card = defs.NewMultiChoice(deck, obj.Front, obj.Choices)
 		default:
-			card = defs.NewBasic(deck, obj.Front, obj.Back, "")
+			card = defs.NewBasic(deck, obj.Front, strings.Split(obj.Back, "\n"))
 		}
 
 		results = append(results, card)

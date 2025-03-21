@@ -1,7 +1,6 @@
 package parsers
 
 import (
-	"encoding/base64"
 	"log"
 	"strings"
 
@@ -48,12 +47,12 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 			continue
 		}
 
-		if strings.HasSuffix(front, "{}") {
-			cardA := defs.NewBasic(deck, strings.Replace(front, "{}", back[0], -1), back[1], "")
-			cardB := defs.NewBasic(deck, strings.Replace(front, "{}", back[1], -1), back[0], "")
-			result = append(result, cardA, cardB)
-			continue
-		}
+		// if strings.HasSuffix(front, "{}") {
+		// 	cardA := defs.NewBasic(deck, strings.Replace(front, "{}", back[0], -1), back[1], "")
+		// 	cardB := defs.NewBasic(deck, strings.Replace(front, "{}", back[1], -1), back[0], "")
+		// 	result = append(result, cardA, cardB)
+		// 	continue
+		// }
 
 		// Multi-choice card
 		if strings.HasPrefix(back[0], "-") || strings.HasPrefix(back[0], "*") {
@@ -104,17 +103,8 @@ func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 			continue
 		}
 
-		img := ""
-		for i, line := range back {
-			if strings.HasPrefix(line, "[](") {
-				filepath := strings.TrimSuffix(strings.TrimPrefix(line, "[]("), ")")
-				img = base64.StdEncoding.EncodeToString([]byte(filepath))
-				back = append(back[:i], back[i+1:]...)
-			}
-		}
-
 		// Basic card
-		card := defs.NewBasic(deck, front, strings.Join(back, "\n"), img)
+		card := defs.NewBasic(deck, front, back)
 		result = append(result, card)
 	}
 
