@@ -16,8 +16,13 @@ import (
 // TODO: images rendered as history need to be darkened to match the Fade filter
 // TODO: images that extend past the screen need to be truncated
 // TODO: support GIFs
+// TODO: change the media syntax to just square brackets
 
 // Note: images are currently using the local file transmission flag (t=f) so won't work over SSH
+
+func clear(id string) string {
+	return fmt.Sprintf("\033_Ga=d,d=i,i=%s;\033\\", id)
+}
 
 type Image struct {
 	ext  string
@@ -32,8 +37,8 @@ func NewImage(path string) *Image {
 }
 
 func (i *Image) Print() string {
-	info, err := os.Stat(i.path)
-	if info == nil {
+	_, err := os.Stat(i.path)
+	if os.IsNotExist(err) {
 		log.Warn("image not found: %s", i.path)
 		return ""
 	}
@@ -59,7 +64,7 @@ func (i *Image) Print() string {
 
 func (i *Image) printPNG() string {
 	encoded := base64.StdEncoding.EncodeToString([]byte(i.path))
-	return fmt.Sprintf("\033_Gi=1,t=f,q=1,f=100,a=T;%s\033\\", encoded)
+	return fmt.Sprintf(clear("1")+"\033_Gi=1,t=f,q=1,f=100,a=T;%s\033\\", encoded)
 }
 
 func (i *Image) printJPG() string {
@@ -89,5 +94,5 @@ func (i *Image) printJPG() string {
 	}
 
 	encoded := base64.StdEncoding.EncodeToString([]byte(outfile.Name()))
-	return fmt.Sprintf("\033_Gi=2,t=f,q=1,f=100,a=T;%s\033\\", encoded)
+	return fmt.Sprintf(clear("2")+"\033_Gi=2,t=f,q=1,f=100,a=T;%s\033\\", encoded)
 }

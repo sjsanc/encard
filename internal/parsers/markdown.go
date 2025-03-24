@@ -7,6 +7,11 @@ import (
 	"github.com/sjsanc/encard/internal/defs"
 )
 
+// Markdown and JSON must parse to the same format: the Card interface
+// Parsing Markdown is done on a chunk by chunk basis, i.e. seperators ----
+// Parsing JSON is done by the JSON marshaller
+// As part of the parsing process, media should be registered (i.e cached)
+
 func ParseMarkdown(data string, deck string) ([]defs.Card, error) {
 	chunks := strings.Split(string(data), "---")
 

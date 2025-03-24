@@ -34,6 +34,16 @@ func (m *Model) renderLeft(w int) string {
 	)
 }
 
+// To render the middle column of Cards, we need to be aware of the terminal height.
+// Each rendered card consists of text lines and images.
+// The total height of a rendered card is the sum of newlines and the image height, rounded to the pixel line height.
+// So we must render each card, determine its height, and subtract that from the terminal height.
+// When the remaining height would be less than the height of the next card, we must:
+// - truncate the card to the nearest newline
+// - and, if the card has an image, re-render the truncated form of the card.
+// We should store a list of these height-aware renderables on the Bubbletea model as this isn't session data.
+// This renderable will wrap the Card interface.
+
 func (m *Model) renderMid(w int) string {
 	base := ns.Width(w)
 
@@ -41,15 +51,16 @@ func (m *Model) renderMid(w int) string {
 
 	block := lg.JoinVertical(
 		lg.Top,
-		base.Render(Display(card, false))+"\n",
+		base.Render(displayCard(card, false))+"\n",
 	)
 
 	history := m.session.History()
+
 	for _, h := range history {
 		block = lg.JoinVertical(
 			lg.Top,
 			block,
-			base.Render(Display(h, true))+"\n",
+			base.Render(displayCard(h, true))+"\n",
 		)
 	}
 

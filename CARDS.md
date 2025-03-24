@@ -2,7 +2,10 @@
 This is the reverse
 ---
 # This is a PNG picture card 
-[](/home/sjsanc/work/encard/internal/tui/testdata/png-cadt.png)
+[](/home/sjsanc/work/encard/internal/tui/testdata/png-cat.png)
+---
+# This is a JPG picture card 
+[](/home/sjsanc/work/encard/internal/tui/testdata/cat.jpg)
 ---
 # This card inserts {} into the curly braces
 words

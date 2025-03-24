@@ -1,11 +1,5 @@
 package defs
 
-import (
-	"strings"
-
-	s "github.com/sjsanc/encard/internal/styles"
-)
-
 type Answer struct {
 	Text     string
 	Correct  bool
@@ -50,42 +44,4 @@ func (c *MultiAnswer) Update(key string) {
 	case "enter":
 		c.Flip()
 	}
-}
-
-func (c *MultiAnswer) Render(faint bool) string {
-	sb := strings.Builder{}
-	sb.WriteString(s.Question.Faint(faint).Render(c.front) + "\n")
-
-	for i, choice := range c.Answers {
-		selected := choice.Selected
-		correct := choice.Correct
-
-		if c.flipped {
-			if selected && correct {
-				sb.WriteString(s.Correct.Faint(faint).Render("[x] "+choice.Text+" (correct!)") + "\n")
-			} else if selected && !correct {
-				sb.WriteString(s.Incorrect.Faint(faint).Render("[x] "+choice.Text+" (incorrect!)") + "\n")
-			} else if !selected && correct {
-				sb.WriteString(s.IncorrectUnselected.Faint(faint).Render("[ ] "+choice.Text+" (answer)") + "\n")
-			} else {
-				sb.WriteString(s.Base.Faint(faint).Render("[ ] "+choice.Text) + "\n")
-			}
-		} else {
-			if c.Current == i {
-				if selected {
-					sb.WriteString(s.Selected.Render("[x] "+choice.Text) + "\n")
-				} else {
-					sb.WriteString(s.Selected.Render("[ ] "+choice.Text) + "\n")
-				}
-			} else {
-				if selected {
-					sb.WriteString(s.Base.Faint(faint).Render("[x] "+choice.Text) + "\n")
-				} else {
-					sb.WriteString(s.Base.Faint(faint).Render("[ ] "+choice.Text) + "\n")
-				}
-			}
-		}
-	}
-
-	return sb.String()
 }
