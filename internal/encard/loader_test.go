@@ -80,6 +80,49 @@ func TestLoadCards(t *testing.T) {
 	}
 }
 
+func TestNoDuplicateDeckNames(t *testing.T) {
+	testdataDir, err := filepath.Abs("testdata")
+	if err != nil {
+		t.Fatalf("failed to resolve testdata directory: %v", err)
+	}
+
+	// Load all cards from the loader directory which contains nested directories with the same name
+	cards, errors := LoadCards([]string{filepath.Join(testdataDir, "loader")}, testdataDir)
+
+	if len(errors) > 0 {
+		t.Logf("got %d errors during loading", len(errors))
+	}
+
+	// Collect all deck names and verify uniqueness
+	deckNames := make(map[string]int)
+	for _, card := range cards {
+		deckNames[card.Deck()]++
+	}
+
+	// Log all deck names for debugging
+	t.Logf("Found %d unique deck names:", len(deckNames))
+	for deck, count := range deckNames {
+		t.Logf("  %s: %d cards", deck, count)
+	}
+
+	// Verify that we have multiple deck names (at least loader, nested, and nested/nested)
+	if len(deckNames) < 3 {
+		t.Errorf("expected at least 3 unique deck names, got %d", len(deckNames))
+	}
+
+	// Verify that nested directories create unique deck names
+	_, hasNested := deckNames["nested"]
+	_, hasNestedNested := deckNames["nested/nested"]
+
+	if !hasNested {
+		t.Error("expected to find deck named 'nested'")
+	}
+
+	if !hasNestedNested {
+		t.Error("expected to find deck named 'nested/nested'")
+	}
+}
+
 var testCard = `
 # Question 1
 Answer 1
