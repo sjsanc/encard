@@ -135,23 +135,17 @@ func loadFromPath(path string, root string) ([]defs.Card, error) {
 }
 
 func extractDeckName(path string, root string) string {
-	// Get the directory containing the file
 	dir := filepath.Dir(path)
 
-	// Try to get the relative path from root
 	relPath, err := filepath.Rel(root, dir)
 	if err != nil || relPath == "." {
-		// If we can't get a relative path, just use the directory basename
-		// This handles cases where the file is directly in the root
 		baseName := filepath.Base(dir)
 		return strings.TrimSuffix(baseName, filepath.Ext(baseName))
 	}
 
-	// Normalize path separators to forward slashes for cross-platform consistency
+	// Normalize to forward slashes for cross-platform consistency
 	deckName := strings.ReplaceAll(relPath, string(filepath.Separator), "/")
 
-	// Remove common file extensions from the final path component if present
-	// This handles cases like "spanish.md" -> "spanish"
 	if ext := filepath.Ext(deckName); ext == ".md" || ext == ".json" {
 		deckName = strings.TrimSuffix(deckName, ext)
 	}
